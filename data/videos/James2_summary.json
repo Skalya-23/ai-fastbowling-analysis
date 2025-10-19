@@ -1,0 +1,24 @@
+{
+  "video": "C:\\Cricket-YOLO-Pose\\data\\videos\\James2.mp4",
+  "fps": 30.0,
+  "frame_w": 1920,
+  "frame_h": 1080,
+  "scale_m_per_px": 0.0036301282234489918,
+  "bowler_height_m": 1.85,
+  "release_time_s": 2.466666666666667,
+  "release_frame": 74,
+  "hybrid_tracking_used": true,
+  "bowler_events": {
+    "BFC_time_s": 2.2,
+    "BFC_frame": 66,
+    "FFC_time_s": 2.4,
+    "FFC_frame": 72,
+    "BFC_foot": "R"
+  },
+  "stumps_detected": {
+    "x_mid": 883.6666666666666,
+    "y_top": 173,
+    "y_bot": 300
+  },
+  "crease_y": null
+}

@@ -1,0 +1,25 @@
+{
+  "video": "C:\\Cricket-YOLO-Pose\\data\\videos\\james2.mp4",
+  "fps": 30.0,
+  "scale_m_per_px": 0.005598425196850393,
+  "release_time_s": 2.1333333333333333,
+  "bowler_events": {
+    "BFC_time_s": null,
+    "FFC_time_s": null,
+    "BFC_foot": null
+  },
+  "stumps_detected": {
+    "x_mid": 883.6666666666666,
+    "y_top": 173,
+    "y_bot": 300
+  },
+  "crease_y": null,
+  "speeds": {
+    "release_speed_mps": 1.5762724134687511,
+    "release_speed_kph": 5.674580688487504,
+    "avg_flight_speed_mps": 9.272244861999821,
+    "avg_flight_speed_kph": 33.38008150319936,
+    "flight_dt_s": 0.033333333333333215,
+    "flight_dist_m": 0.3090748287333263
+  }
+}

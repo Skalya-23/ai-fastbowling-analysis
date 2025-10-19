@@ -1,0 +1,24 @@
+{
+  "video": "C:\\Cricket-YOLO-Pose\\data\\videos\\Bowler2.mp4",
+  "fps": 30.0,
+  "frame_w": 1080,
+  "frame_h": 1920,
+  "scale_m_per_px": 0.002690519206225872,
+  "bowler_height_m": 1.65,
+  "release_time_s": 1.2666666666666666,
+  "release_frame": 38,
+  "hybrid_tracking_used": true,
+  "bowler_events": {
+    "BFC_time_s": 1.0,
+    "BFC_frame": 30,
+    "FFC_time_s": 1.1666666666666667,
+    "FFC_frame": 35,
+    "BFC_foot": "R"
+  },
+  "stumps_detected": {
+    "x_mid": null,
+    "y_top": null,
+    "y_bot": null
+  },
+  "crease_y": 1913
+}
