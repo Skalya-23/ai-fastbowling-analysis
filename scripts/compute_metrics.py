@@ -487,6 +487,86 @@ def arm_position_at_ffc(kpts_all, ffc_idx, handed="right"):
         return "below_shoulder"
     else:
         return "at_shoulder"
+    
+# ============================================================================
+# ADD THIS FUNCTION to compute_metrics.py (after the other metric functions)
+# ============================================================================
+
+def estimate_release_ball_speed(metrics):
+    """
+    Estimate ball release speed using biomechanical equation.
+    
+    This uses a regression model based on bowling biomechanics research.
+    More reliable than direct ball tracking for side-view videos.
+    
+    Args:
+        metrics: Dict containing all computed metrics
+    
+    Returns:
+        Dict with estimated speeds in kph and mph, or None if insufficient data
+    """
+    # Check if we have all required inputs
+    required = [
+        "runup_speed_kph",
+        "wrist_speed_kph", 
+        "front_knee_angle_ffc_deg",
+        "back_knee_angle_bfc_deg",
+        "BFC_contact_time_ms",
+        "BFC_landing_type",
+        "arm_position_at_ffc",
+        "lateral_flexion_release_deg",
+        "stride_length_m",
+        "release_height_m",
+        "bowler_height_m"
+    ]
+    
+    # Check which are missing
+    missing = [k for k in required if metrics.get(k) is None]
+    
+    if missing:
+        return {
+            "estimated_release_speed_kph": None,
+            "estimated_release_speed_mph": None,
+            "estimation_missing_inputs": missing
+        }
+    
+    # Extract values
+    runup_kph = metrics["runup_speed_kph"]
+    wrist_kph = metrics["wrist_speed_kph"]
+    front_knee_deg = metrics["front_knee_angle_ffc_deg"]
+    back_knee_deg = metrics["back_knee_angle_bfc_deg"]
+    bfc_ms = metrics["BFC_contact_time_ms"]
+    landing_type = metrics["BFC_landing_type"]
+    arm_pos = metrics["arm_position_at_ffc"]
+    latflex_deg = metrics["lateral_flexion_release_deg"]
+    stride_m = metrics["stride_length_m"]
+    release_m = metrics["release_height_m"]
+    height_m = metrics["bowler_height_m"]
+    
+    # Apply the biomechanical equation
+    v_release_kph = (
+        0.72
+        + 0.35 * runup_kph
+        + 4.50 * wrist_kph
+        + 4.00 * math.cos(math.radians(180 - front_knee_deg))
+        + 1.25 * math.cos(math.radians(180 - back_knee_deg))
+        - 6.50 * (bfc_ms / 1000)
+        + (1.0 if landing_type == "toe_first" else 0.0)
+        - (1.5 if arm_pos == "below_shoulder" else 0.0)
+        + 2.50 * math.exp(-((latflex_deg - 32)**2) / (2 * 10**2))
+        + 1.00 * (stride_m / height_m)
+        + 1.50 * (release_m / height_m)
+        + 5.00 * height_m
+        - 6.8  # calibration offset
+    )
+    
+    # Convert to mph
+    v_release_mph = v_release_kph * 0.621371
+    
+    return {
+        "estimated_release_speed_kph": float(v_release_kph),
+        "estimated_release_speed_mph": float(v_release_mph)
+    }
 
 
 # ------------------------- MAIN COMPUTE FUNCTION -------------------------
@@ -569,15 +649,6 @@ def compute_metrics(summary_json, ball_csv, kpts_csv, handed="right"):
                 metrics["release_speed_kph"] = v_mps * 3.6
                 metrics["measurement_points_used"] = len(pos_slice)
     
-    if m_per_px and release_idx_meas is not None and len(ball_positions_meas) > release_idx_meas + 3:
-        pos_after = ball_positions_meas[release_idx_meas:]
-        time_after = ball_times_meas[release_idx_meas:]
-        
-        if len(pos_after) >= 3:
-            v_mps = instantaneous_speed_measurements_only(pos_after, time_after, m_per_px)
-            if v_mps:
-                metrics["avg_ball_speed_mps"] = v_mps
-                metrics["avg_ball_speed_kph"] = v_mps * 3.6
     
     # ============ TIMING METRICS ============
     
@@ -684,6 +755,8 @@ def compute_metrics(summary_json, ball_csv, kpts_csv, handed="right"):
             if v_mps:
                 metrics["wrist_speed_mps"] = v_mps
                 metrics["wrist_speed_kph"] = v_mps * 3.6
+ 
+    
     
     # ============ DIAGNOSTIC INFO ============
     
@@ -696,6 +769,11 @@ def compute_metrics(summary_json, ball_csv, kpts_csv, handed="right"):
     metrics["bowler_height_m"] = bowler_height_m
     metrics["calibration_m_per_px"] = m_per_px
     metrics["fps"] = fps
+
+  # ============ ESTIMATED BALL SPEED (BIOMECHANICAL MODEL) ============
+    
+    estimated_speed = estimate_release_ball_speed(metrics)
+    metrics.update(estimated_speed)
     
     # Warning flags
     warnings = []
@@ -730,16 +808,28 @@ if __name__ == "__main__":
     print("\n=== COMPUTED METRICS ===\n")
     
     # Speed metrics
+    print(f"🚀 SPEED METRICS:")
+    
+    # Estimated speed (biomechanical model)
+    if metrics.get("estimated_release_speed_kph"):
+        print(f"  Estimated release: {metrics['estimated_release_speed_kph']:.1f} kph ({metrics['estimated_release_speed_mph']:.1f} mph)")
+    
+    # Measured speeds (if available)
     if "release_speed_kph" in metrics and metrics["release_speed_kph"]:
-        print(f"🚀 SPEED METRICS:")
-        print(f"  Release speed: {metrics['release_speed_kph']:.1f} kph ({metrics['release_speed_mps']:.1f} m/s)")
-        if "avg_ball_speed_kph" in metrics and metrics["avg_ball_speed_kph"]:
-            print(f"  Avg ball speed: {metrics['avg_ball_speed_kph']:.1f} kph")
-        if "wrist_speed_kph" in metrics and metrics["wrist_speed_kph"]:
-            print(f"  Wrist speed: {metrics['wrist_speed_kph']:.1f} kph")
-        if "runup_speed_kph" in metrics and metrics["runup_speed_kph"]:
-            print(f"  Run-up speed: {metrics['runup_speed_kph']:.1f} kph")
-        print()
+        print(f"  Measured release: {metrics['release_speed_kph']:.1f} kph ({metrics['release_speed_mps']:.1f} m/s)")
+    
+    
+    if "wrist_speed_kph" in metrics and metrics["wrist_speed_kph"]:
+        print(f"  Wrist speed: {metrics['wrist_speed_kph']:.1f} kph")
+    
+    if "runup_speed_kph" in metrics and metrics["runup_speed_kph"]:
+        print(f"  Run-up speed: {metrics['runup_speed_kph']:.1f} kph")
+    
+    # Show which inputs were missing if estimation failed
+    if metrics.get("estimation_missing_inputs"):
+        print(f"  [Note: Speed estimation incomplete - missing: {', '.join(metrics['estimation_missing_inputs'])}]")
+    
+    print()
     
     # Angle metrics
     print(f"📐 ANGLE METRICS:")

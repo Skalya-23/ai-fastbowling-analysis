@@ -1,0 +1,24 @@
+{
+  "video": "C:\\Cricket-YOLO-Pose\\data\\videos\\Subi4.mp4",
+  "fps": 30.0,
+  "frame_w": 3840,
+  "frame_h": 2160,
+  "scale_m_per_px": 0.005361771211028099,
+  "bowler_height_m": 1.65,
+  "release_time_s": 1.2333333333333334,
+  "release_frame": 37,
+  "hybrid_tracking_used": true,
+  "bowler_events": {
+    "BFC_time_s": 0.96667,
+    "BFC_frame": 29,
+    "FFC_time_s": 1.1333333333333333,
+    "FFC_frame": 34,
+    "BFC_foot": "R"
+  },
+  "stumps_detected": {
+    "x_mid": null,
+    "y_top": null,
+    "y_bot": null
+  },
+  "crease_y": null
+}

@@ -5,8 +5,9 @@
   "frame_h": 1080,
   "scale_m_per_px": 0.003794326912611723,
   "bowler_height_m": 1.85,
-  "release_time_s": 1.7,
-  "release_frame": 51,
+  "release_time_s": 2.0,
+  "release_frame": 62,
+  "hybrid_tracking_used": true,
   "bowler_events": {
     "BFC_time_s": null,
     "BFC_frame": null,

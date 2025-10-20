@@ -1,0 +1,50 @@
+
+{
+  "style": "side-on (classic high-action)",
+  "dominance": "hip-dominant with strong vertical component",
+  "video":"James2",
+  "findings": {
+    "runup_tempo": "unknown (not provided), but long ground contact (200 ms) suggests a more deliberate, controlled approach rather than a high-momentum sprint.",
+    "back_leg_mechanics": "back knee 157° at BFC indicates partial flexion—adequate load absorption but could generate more drive if extended closer to 160–165°.",
+    "front_leg_brace": "excellent; 173° front-knee angle shows strong braking and energy transfer into trunk and arm.",
+    "hip_shoulder_separation": "44.5° at FFC — moderate; earlier shoulder rotation may be reducing torque potential.",
+    "lateral_flexion": "−40.5° lateral tilt is excessive contralateral flexion—enhances release height but markedly increases lumbar stress risk.",
+    "release_height": "2.14 m (≈1.16 × height) — significantly above average, reflecting tall posture and strong front-leg block.",
+    "temporal_patterning": "BFC→release = 0.27 s, FFC→release = 0.07 s — efficient transfer, though the short FFC window suggests rapid arm acceleration after front-foot strike.",
+    "arm_position": "‘above shoulder’ at FFC aligns with high-arm side-on release, consistent with classical seam bowler mechanics."
+  },
+  "expected range": {
+    "hip_shoulder_separation": [50, 65],
+    "front_knee_angle_ffc": [165, 175],
+    "lateral_flexion": [15, 30],
+    "BFC_contact_time": [90, 140],
+    "release_height_ratio": "1.05–1.10 × body height",
+    "BFC_to_release_time": [0.20, 0.28],
+    "FFC_to_release_time": [0.08, 0.12]
+  },
+  "drills": [
+    "rotational medicine-ball throws to enhance hip–shoulder separation timing",
+    "side-plank and bird-dog progressions for lumbar control under lateral load",
+    "single-leg drop landings to reduce BFC contact duration and improve reactivity",
+    "high-knee bounding drills to promote quicker transition from BFC to FFC",
+    "overhead bowling release drills emphasizing upright posture and delayed side flexion"
+  ],
+  "watchouts": [
+    "lateral flexion exceeding 35° greatly increases lumbar shear; prioritize trunk symmetry work",
+    "avoid premature shoulder rotation before full front-foot brace",
+    "consider shortening BFC contact (currently ~200 ms) to increase momentum carry-through",
+    "ensure hip–shoulder decoupling for maximal kinetic storage"
+  ],
+  "confidence": 0.88,
+  "allmetrics": {
+      "BFC_contact_time_ms": 199.99999999999974,
+      "BFC_landing_type": "toe_first",
+      "BFC_heel_touches_ground": true,
+      "arm_position_at_ffc": "above_shoulder",
+      "back_knee_angle_bfc_deg": 157.38562344344763,
+      "front_knee_angle_ffc_deg": 173.46230641716508,
+      "lateral_flexion_release_deg": -40.473728679704244,
+      "hip_shoulder_separation_ffc_deg": 44.47267548925668,
+      "release_height_m": 2.1421288529392143
+  }
+}
