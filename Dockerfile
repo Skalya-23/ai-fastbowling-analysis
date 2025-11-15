@@ -25,8 +25,11 @@ COPY . .
 # Create necessary directories
 RUN mkdir -p /app/outputs /app/cricket-analysis-api/uploads
 
+# Set the working directory to cricket-analysis-api
+WORKDIR /app/cricket-analysis-api
+
 # Expose port
 EXPOSE 8000
 
 # Run the application
-CMD ["uvicorn", "cricket-analysis-api.app.api:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "uvicorn", "app.api:app", "--host", "0.0.0.0", "--port", "8000"]
