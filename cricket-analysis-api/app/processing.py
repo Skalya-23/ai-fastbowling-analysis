@@ -62,7 +62,7 @@ async def process_video(job_id: str, video_path: Path, bowler_height_m: float, h
         
         # Step 1: Run combined pipeline
         # Use the Python from the virtual environment
-        python_exe = str(PROJECT_ROOT / ".venv" / "Scripts" / "python.exe")
+        python_exe = "python"
         
         combined_cmd = [
             python_exe,
