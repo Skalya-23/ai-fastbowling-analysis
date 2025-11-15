@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket Bowling Analysis | AI-Powered Biomechanics</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .main-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card-header {
+            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+            padding: 30px 40px;
+            color: white;
+        }
+        
+        .card-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .card-header p {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+        
+        .card-body {
+            padding: 40px;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            color: #94a3b8;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 10px;
+            transition: all 0.3s;
+        }
+        
+        .step.active .step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .step.completed .step-number {
+            background: #10b981;
+            color: white;
+        }
+        
+        .step-text {
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .step.active .step-text {
+            color: #1e293b;
+        }
+        
+        .step-line {
+            width: 80px;
+            height: 3px;
+            background: #e2e8f0;
+            margin: 0 20px;
+        }
+        
+        .step-line.completed {
+            background: #10b981;
+        }
+        
+        .instructions-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #bae6fd;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+        
+        .instructions-box h3 {
+            color: #0369a1;
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .instructions-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .instructions-box li {
+            padding: 8px 0;
+            padding-left: 28px;
+            position: relative;
+            color: #0c4a6e;
+            font-size: 14px;
+        }
+        
+        .instructions-box li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #0ea5e9;
+            font-weight: bold;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 0;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        input[type="file"] {
+            width: 100%;
+            padding: 16px;
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            background: #f9fafb;
+            font-size: 14px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        input[type="file"]:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        input[type="number"], select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        input[type="number"]:focus, select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            outline: none;
+        }
+        
+        .btn {
+            padding: 16px 40px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+        }
+        
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+        }
+        
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+        
+        .frames-container {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .frames-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .frames-header h3 {
+            font-size: 18px;
+            color: #1e293b;
+        }
+        
+        .selected-badge {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+        
+        .frames-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            max-height: 450px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .frames-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .frames-grid::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 4px;
+        }
+        
+        .frames-grid::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+        
+        .frame-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .frame-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+        
+        .frame-card.selected {
+            border-color: #ef4444;
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+        }
+        
+        .frame-card img {
+            width: 100%;
+            display: block;
+        }
+        
+        .frame-label {
+            padding: 10px;
+            background: #1e293b;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        .processing-container {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .processing-animation {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+        
+        .processing-circle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 4px solid #e2e8f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .processing-circle:nth-child(2) {
+            width: 80%;
+            height: 80%;
+            top: 10%;
+            left: 10%;
+            border-top-color: #764ba2;
+            animation-duration: 1.5s;
+            animation-direction: reverse;
+        }
+        
+        .processing-circle:nth-child(3) {
+            width: 60%;
+            height: 60%;
+            top: 20%;
+            left: 20%;
+            border-top-color: #10b981;
+            animation-duration: 2s;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .processing-text h3 {
+            font-size: 24px;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+        
+        .processing-text p {
+            color: #64748b;
+            font-size: 16px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .status-processing {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        
+        .results-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            color: white;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+        
+        .results-header h2 {
+            font-size: 32px;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+        
+        .results-header p {
+            color: #64748b;
+            font-size: 16px;
+        }
+        
+        .download-section {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        
+        .download-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #bae6fd;
+            border-radius: 16px;
+            padding: 24px 32px;
+            text-decoration: none;
+            color: #0369a1;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .download-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.2);
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+        }
+        
+        .download-icon {
+            font-size: 24px;
+        }
+        
+        .metrics-section h3 {
+            font-size: 20px;
+            color: #1e293b;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-left: 5px solid #667eea;
+            transition: all 0.3s;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+        
+        .metric-card h4 {
+            font-size: 14px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .metric-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+        
+        .metric-unit {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+        
+        .warning-box {
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .warning-box h4 {
+            color: #92400e;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .warning-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .warning-box li {
+            color: #78350f;
+            padding: 6px 0;
+            font-size: 14px;
+        }
+        
+        .error-message {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const API_URL = 'http://localhost:8000';
+        
+        function App() {
+            const [step, setStep] = React.useState(1);
+            const [jobId, setJobId] = React.useState(null);
+            const [frames, setFrames] = React.useState([]);
+            const [selectedFrame, setSelectedFrame] = React.useState(null);
+            const [metrics, setMetrics] = React.useState(null);
+            const [status, setStatus] = React.useState(null);
+            const [error, setError] = React.useState(null);
+            const [loading, setLoading] = React.useState(false);
+            const [fps, setFps] = React.useState(30);
+            
+            const [video, setVideo] = React.useState(null);
+            const [height, setHeight] = React.useState('');
+            const [handed, setHanded] = React.useState('right');
+            
+            const handleUpload = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError(null);
+                
+                const formData = new FormData();
+                formData.append('video', video);
+                formData.append('bowler_height_m', height);
+                formData.append('handed', handed);
+                
+                try {
+                    const response = await fetch(`${API_URL}/v1/video/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) throw new Error('Upload failed');
+                    
+                    const data = await response.json();
+                    setJobId(data.job_id);
+                    setFps(data.fps || 30);
+                    
+                    const framesResponse = await fetch(`${API_URL}/v1/video/${data.job_id}/frames`);
+                    const framesData = await framesResponse.json();
+                    setFrames(framesData.frames);
+                    setStep(2);
+                } catch (err) {
+                    setError(err.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            
+            const handleStartProcessing = async () => {
+                if (selectedFrame === null) {
+                    setError('Please select a release frame');
+                    return;
+                }
+                
+                setLoading(true);
+                setError(null);
+                
+                const formData = new FormData();
+                formData.append('release_frame', selectedFrame);
+                
+                try {
+                    const response = await fetch(`${API_URL}/v1/video/${jobId}/process`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) throw new Error('Failed to start processing');
+                    
+                    setStep(3);
+                    pollStatus();
+                } catch (err) {
+                    setError(err.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            
+            const pollStatus = async () => {
+                const checkStatus = async () => {
+                    try {
+                        const response = await fetch(`${API_URL}/v1/video/${jobId}/status`);
+                        const data = await response.json();
+                        setStatus(data);
+                        
+                        if (data.status === 'completed') {
+                            const metricsResponse = await fetch(`${API_URL}/v1/video/${jobId}/download/metrics`);
+                            const metricsData = await metricsResponse.json();
+                            setMetrics(metricsData);
+                            setStep(4);
+                        } else if (data.status === 'failed') {
+                            setError(data.error || 'Processing failed');
+                            setStep(1);
+                        } else {
+                            setTimeout(checkStatus, 2000);
+                        }
+                    } catch (err) {
+                        setError(err.message);
+                    }
+                };
+                checkStatus();
+            };
+            
+            const resetApp = () => {
+                setStep(1);
+                setJobId(null);
+                setFrames([]);
+                setSelectedFrame(null);
+                setMetrics(null);
+                setStatus(null);
+                setError(null);
+                setVideo(null);
+                setHeight('');
+                setHanded('right');
+            };
+            
+            return (
+                <div className="app-container">
+                    <header className="header">
+                        <h1>🏏 Cricket Bowling Analysis</h1>
+                        <p>AI-Powered Biomechanics Analysis for Fast Bowlers</p>
+                    </header>
+                    
+                    <div className="main-card">
+                        <div className="card-header">
+                            <h2>
+                                {step === 1 && "Upload Your Bowling Video"}
+                                {step === 2 && "Select Release Frame"}
+                                {step === 3 && "Analyzing Biomechanics"}
+                                {step === 4 && "Analysis Complete"}
+                            </h2>
+                            <p>
+                                {step === 1 && "Start by uploading a video of your bowling action"}
+                                {step === 2 && "Click on the exact frame where the ball leaves your hand"}
+                                {step === 3 && "Our AI is processing your bowling technique"}
+                                {step === 4 && "Your detailed biomechanics report is ready"}
+                            </p>
+                        </div>
+                        
+                        <div className="card-body">
+                            <div className="step-indicator">
+                                <div className={`step ${step >= 1 ? 'active' : ''} ${step > 1 ? 'completed' : ''}`}>
+                                    <div className="step-number">{step > 1 ? '✓' : '1'}</div>
+                                    <span className="step-text">Upload</span>
+                                </div>
+                                <div className={`step-line ${step > 1 ? 'completed' : ''}`}></div>
+                                <div className={`step ${step >= 2 ? 'active' : ''} ${step > 2 ? 'completed' : ''}`}>
+                                    <div className="step-number">{step > 2 ? '✓' : '2'}</div>
+                                    <span className="step-text">Select Frame</span>
+                                </div>
+                                <div className={`step-line ${step > 2 ? 'completed' : ''}`}></div>
+                                <div className={`step ${step >= 3 ? 'active' : ''} ${step > 3 ? 'completed' : ''}`}>
+                                    <div className="step-number">{step > 3 ? '✓' : '3'}</div>
+                                    <span className="step-text">Process</span>
+                                </div>
+                                <div className={`step-line ${step > 3 ? 'completed' : ''}`}></div>
+                                <div className={`step ${step >= 4 ? 'active' : ''}`}>
+                                    <div className="step-number">4</div>
+                                    <span className="step-text">Results</span>
+                                </div>
+                            </div>
+                            
+                            {error && <div className="error-message">⚠️ {error}</div>}
+                            
+                            {step === 1 && (
+                                <div>
+                                    <div className="instructions-box">
+                                        <h3>📋 Video Requirements</h3>
+                                        <ul>
+                                            <li>Capture from mid run-up through ball release</li>
+                                            <li>Ensure the ball doesn't hit the bat</li>
+                                            <li>Show the complete delivery stride clearly</li>
+                                            <li>Side or 3-quarter back view works best</li>
+                                            <li>Good lighting and stable camera recommended</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <form onSubmit={handleUpload}>
+                                        <div className="form-group full-width">
+                                            <label>Video File</label>
+                                            <input 
+                                                type="file" 
+                                                accept=".mp4,.avi,.mov"
+                                                onChange={(e) => setVideo(e.target.files[0])}
+                                                required
+                                            />
+                                        </div>
+                                        
+                                        <div className="form-grid">
+                                            <div className="form-group">
+                                                <label>Bowler Height (meters)</label>
+                                                <input 
+                                                    type="number" 
+                                                    step="0.01"
+                                                    min="1.0"
+                                                    max="2.5"
+                                                    placeholder="e.g., 1.85"
+                                                    value={height}
+                                                    onChange={(e) => setHeight(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                            
+                                            <div className="form-group">
+                                                <label>Bowling Hand</label>
+                                                <select value={handed} onChange={(e) => setHanded(e.target.value)}>
+                                                    <option value="right">Right Handed</option>
+                                                    <option value="left">Left Handed</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="action-buttons">
+                                            <button type="submit" className="btn btn-primary" disabled={loading}>
+                                                {loading ? '⏳ Uploading...' : '🚀 Upload & Extract Frames'}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            )}
+                            
+                            {step === 2 && (
+                                <div>
+                                    <div className="frames-container">
+                                        <div className="frames-header">
+                                            <h3>Click on the release frame</h3>
+                                            {selectedFrame !== null && (
+                                                <div className="selected-badge">
+                                                    Frame {selectedFrame} • {(selectedFrame / fps).toFixed(3)}s
+                                                </div>
+                                            )}
+                                        </div>
+                                        
+                                        <div className="frames-grid">
+                                            {frames.map((frame) => (
+                                                <div 
+                                                    key={frame.frame_number}
+                                                    className={`frame-card ${selectedFrame === frame.frame_number ? 'selected' : ''}`}
+                                                    onClick={() => setSelectedFrame(frame.frame_number)}
+                                                >
+                                                    <img 
+                                                        src={`${API_URL}${frame.url}`} 
+                                                        alt={`Frame ${frame.frame_number}`}
+                                                        loading="lazy"
+                                                    />
+                                                    <div className="frame-label">
+                                                        Frame {frame.frame_number} • {frame.time_seconds}s
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="action-buttons">
+                                        <button className="btn btn-secondary" onClick={resetApp}>
+                                            ← Back
+                                        </button>
+                                        <button 
+                                            className="btn btn-success"
+                                            onClick={handleStartProcessing}
+                                            disabled={selectedFrame === null || loading}
+                                        >
+                                            {loading ? '⏳ Starting...' : '🎯 Analyze This Frame'}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            {step === 3 && (
+                                <div className="processing-container">
+                                    <div className="processing-animation">
+                                        <div className="processing-circle"></div>
+                                        <div className="processing-circle"></div>
+                                        <div className="processing-circle"></div>
+                                    </div>
+                                    <div className="processing-text">
+                                        <h3>Analyzing Your Bowling Action</h3>
+                                        <p>This typically takes 2-3 minutes. Please don't close this page.</p>
+                                    </div>
+                                    {status && (
+                                        <div className="status-badge status-processing">
+                                            {status.progress}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            
+                            {step === 4 && metrics && (
+                                <div>
+                                    <div className="results-header">
+                                        <div className="success-icon">✓</div>
+                                        <h2>Analysis Complete!</h2>
+                                        <p>Your bowling biomechanics have been analyzed</p>
+                                    </div>
+                                    
+                                    <div className="download-section">
+                                        <a href={`${API_URL}/v1/video/${jobId}/download/video`} className="download-card" download>
+                                            <span className="download-icon">📹</span>
+                                            <span>Download Annotated Video</span>
+                                        </a>
+                                        <a href={`${API_URL}/v1/video/${jobId}/download/metrics`} className="download-card" target="_blank">
+                                            <span className="download-icon">📊</span>
+                                            <span>View Full JSON Report</span>
+                                        </a>
+                                    </div>
+                                    
+                                    <div className="metrics-section">
+                                        <h3>Key Performance Metrics</h3>
+                                        <div className="metrics-grid">
+                                            {metrics.estimated_release_speed_kph && (
+                                                <div className="metric-card">
+                                                    <h4>Estimated Speed</h4>
+                                                    <div className="metric-value">{metrics.estimated_release_speed_kph.toFixed(1)}</div>
+                                                    <div className="metric-unit">kph ({metrics.estimated_release_speed_mph.toFixed(1)} mph)</div>
+                                                </div>
+                                            )}
+                                            
+                                            {metrics.release_height_m && (
+                                                <div className="metric-card">
+                                                    <h4>Release Height</h4>
+                                                    <div className="metric-value">{metrics.release_height_m.toFixed(2)}</div>
+                                                    <div className="metric-unit">meters</div>
+                                                </div>
+                                            )}
+                                            
+                                            {metrics.stride_length_m && (
+                                                <div className="metric-card">
+                                                    <h4>Stride Length</h4>
+                                                    <div className="metric-value">{metrics.stride_length_m.toFixed(2)}</div>
+                                                    <div className="metric-unit">meters</div>
+                                                </div>
+                                            )}
+                                            
+                                            {metrics.front_knee_angle_ffc_deg && (
+                                                <div className="metric-card">
+                                                    <h4>Front Knee Angle</h4>
+                                                    <div className="metric-value">{metrics.front_knee_angle_ffc_deg.toFixed(1)}°</div>
+                                                    <div className="metric-unit">at front foot contact</div>
+                                                </div>
+                                            )}
+                                            
+                                            {metrics.back_knee_angle_bfc_deg && (
+                                                <div className="metric-card">
+                                                    <h4>Back Knee Angle</h4>
+                                                    <div className="metric-value">{metrics.back_knee_angle_bfc_deg.toFixed(1)}°</div>
+                                                    <div className="metric-unit">at back foot contact</div>
+                                                </div>
+                                            )}
+                                            
+                                            {metrics.lateral_flexion_release_deg && (
+                                                <div className="metric-card">
+                                                    <h4>Lateral Flexion</h4>
+                                                    <div className="metric-value">{metrics.lateral_flexion_release_deg.toFixed(1)}°</div>
+                                                    <div className="metric-unit">trunk lean at release</div>
+                                                </div>
+                                            )}
+                                            
+                                            {metrics.hip_shoulder_separation_ffc_deg && (
+                                                <div className="metric-card">
+                                                    <h4>Hip-Shoulder Separation</h4>
+                                                    <div className="metric-value">{metrics.hip_shoulder_separation_ffc_deg.toFixed(1)}°</div>
+                                                    <div className="metric-unit">counter-rotation</div>
+                                                </div>
+                                            )}
+                                            
+                                            {metrics.jump_height_m && (
+                                                <div className="metric-card">
+                                                    <h4>Jump Height</h4>
+                                                    <div className="metric-value">{(metrics.jump_height_m * 100).toFixed(1)}</div>
+                                                    <div className="metric-unit">centimeters</div>
+                                                </div>
+                                            )}
+                                            
+                                            {metrics.BFC_landing_type && (
+                                                <div className="metric-card">
+                                                    <h4>Landing Type</h4>
+                                                    <div className="metric-value" style={{fontSize: '24px'}}>{metrics.BFC_landing_type.replace(/_/g, ' ')}</div>
+                                                    <div className="metric-unit">back foot contact</div>
+                                                </div>
+                                            )}
+                                            
+                                            {metrics.arm_position_at_ffc && (
+                                                <div className="metric-card">
+                                                    <h4>Arm Position at FFC</h4>
+                                                    <div className="metric-value" style={{fontSize: '24px'}}>{metrics.arm_position_at_ffc.replace(/_/g, ' ')}</div>
+                                                    <div className="metric-unit">bowling arm position</div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    
+                                    {metrics.warnings && metrics.warnings.length > 0 && (
+                                        <div className="warning-box">
+                                            <h4>⚠️ Analysis Notes</h4>
+                                            <ul>
+                                                {metrics.warnings.map((w, i) => (
+                                                    <li key={i}>• {w}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                    
+                                    <div className="action-buttons">
+                                        <button className="btn btn-primary" onClick={resetApp}>
+                                            🔄 Analyze Another Video
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
