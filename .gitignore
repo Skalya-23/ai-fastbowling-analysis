@@ -1,1 +1,9 @@
-﻿.venv/
+﻿# Directories to exclude
+AnalyzeVids/
+datasets/
+runs/
+outputs/
+.venv/
+data/videos/
+
+# Add any other generated files or folders you want to exclude here

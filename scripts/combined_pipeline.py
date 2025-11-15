@@ -201,116 +201,277 @@ def make_json_safe(obj):
         return obj
 
 
+def select_release_frame(video_path):
+    """
+    Interactive frame selector for choosing the release frame.
+    Returns the selected frame number, or None if cancelled.
+    """
+    cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        print("[ERROR] Could not open video for frame selection")
+        return None
+    
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    
+    current_frame = 0
+    selected_frame = None
+    paused = True
+    
+    # Window setup
+    window_name = "Select Release Frame (SPACE: Play/Pause | LEFT/RIGHT: Navigate | ENTER: Confirm | ESC: Cancel)"
+    cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+    cv2.resizeWindow(window_name, 1280, 720)
+    
+    def on_trackbar(val):
+        nonlocal current_frame
+        current_frame = val
+    
+    # Create trackbar
+    cv2.createTrackbar('Frame', window_name, 0, total_frames - 1, on_trackbar)
+    
+    print("\n" + "="*60)
+    print("FRAME SELECTOR CONTROLS:")
+    print("  SPACE     : Play/Pause")
+    print("  LEFT/RIGHT: Previous/Next frame (when paused)")
+    print("  A/D       : Jump backward/forward 10 frames")
+    print("  S         : Jump to start")
+    print("  ENTER     : Confirm selection")
+    print("  ESC       : Cancel and exit")
+    print("="*60 + "\n")
+    
+    while True:
+        # Set frame position
+        cap.set(cv2.CAP_PROP_POS_FRAMES, current_frame)
+        ret, frame = cap.read()
+        
+        if not ret:
+            current_frame = 0
+            continue
+        
+        # Draw info overlay
+        display_frame = frame.copy()
+        h, w = display_frame.shape[:2]
+        
+        # Semi-transparent overlay bar at top
+        overlay = display_frame.copy()
+        cv2.rectangle(overlay, (0, 0), (w, 80), (0, 0, 0), -1)
+        cv2.addWeighted(overlay, 0.6, display_frame, 0.4, 0, display_frame)
+        
+        # Frame info
+        time_sec = current_frame / fps
+        info_text = f"Frame: {current_frame}/{total_frames-1} | Time: {time_sec:.2f}s"
+        cv2.putText(display_frame, info_text, (20, 30), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+        
+        status = "PAUSED" if paused else "PLAYING"
+        status_color = (0, 255, 255) if paused else (0, 255, 0)
+        cv2.putText(display_frame, status, (20, 60), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.7, status_color, 2)
+        
+        # Release frame marker
+        if selected_frame is not None:
+            marker_text = f"Selected: Frame {selected_frame}"
+            cv2.putText(display_frame, marker_text, (w - 350, 30), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            cv2.putText(display_frame, "Press ENTER to confirm", (w - 350, 60), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+        
+        # Crosshair at center
+        cv2.line(display_frame, (w//2 - 20, h//2), (w//2 + 20, h//2), (0, 255, 0), 1)
+        cv2.line(display_frame, (w//2, h//2 - 20), (w//2, h//2 + 20), (0, 255, 0), 1)
+        
+        cv2.imshow(window_name, display_frame)
+        
+        # Update trackbar
+        cv2.setTrackbarPos('Frame', window_name, current_frame)
+        
+        # Handle keyboard input
+        key = cv2.waitKey(30 if not paused else 100) & 0xFF
+        
+        if key == 27:  # ESC
+            print("\n[INFO] Frame selection cancelled")
+            selected_frame = None
+            break
+        elif key == 13:  # ENTER
+            if selected_frame is None:
+                selected_frame = current_frame
+            print(f"\n[INFO] Release frame selected: {selected_frame}")
+            break
+        elif key == ord(' '):  # SPACE
+            paused = not paused
+        elif key == 83 or key == ord('d'):  # RIGHT arrow or 'd'
+            if paused:
+                current_frame = min(current_frame + (10 if key == ord('d') else 1), total_frames - 1)
+        elif key == 81 or key == ord('a'):  # LEFT arrow or 'a'
+            if paused:
+                current_frame = max(current_frame - (10 if key == ord('a') else 1), 0)
+        elif key == ord('s'):  # 's' - jump to start
+            current_frame = 0
+        elif key == ord('c'):  # 'c' - mark current as selected
+            selected_frame = current_frame
+            print(f"[INFO] Marked frame {selected_frame} as release point")
+        
+        # Auto-advance if playing
+        if not paused:
+            current_frame = (current_frame + 1) % total_frames
+    
+    cap.release()
+    cv2.destroyAllWindows()
+    
+    return selected_frame
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--video", required=True, help="Input video path")
-    ap.add_argument("--pose_model", default="yolov8s-pose.pt", help="YOLO pose model")
-    ap.add_argument("--det_model", default="yolov8s.pt", help="YOLO detection model")
-    ap.add_argument("--imgsz_pose", type=int, default=960, help="Pose model image size")
-    ap.add_argument("--imgsz_det", type=int, default=1280, help="Detection model image size")
-    ap.add_argument("--device", default=None, help="Computation device (cpu/cuda)")
-    ap.add_argument("--max_jump_px", type=float, default=260.0, help="Guard for keypoint ID switches")
-    ap.add_argument("--handed", choices=["right", "left"], default="right", help="Bowling arm")
-    ap.add_argument("--bowler_height_m", type=float, required=True, help="Bowler height in meters")
-    ap.add_argument("--use_hybrid_tracking", action="store_true", 
-                    help="Use wrist position until release, then ball detector")
+    ap.add_argument("--video", required=True, help="Path to input video")
+    ap.add_argument("--bowler_height_m", type=float, required=True,
+                    help="Bowler height in meters")
+    ap.add_argument("--handed", required=True, choices=["left", "right"],
+                    help="Bowler's bowling hand")
+    ap.add_argument("--pose_model", required=True, help="YOLOv8 pose model path")
+    ap.add_argument("--det_model", required=True, help="YOLO ball detection model path")
+    ap.add_argument("--device", type=str, default="cpu",
+                    help="Device (cpu, cuda, 0, 1, ...)")
+    ap.add_argument("--imgsz_pose", type=int, default=640,
+                    help="Image size for pose model")
+    ap.add_argument("--imgsz_det", type=int, default=640,
+                    help="Image size for detection model")
+    ap.add_argument("--use_hybrid_tracking", action="store_true",
+                    help="Use wrist before release, detector after")
     ap.add_argument("--manual_release_frame", type=int, default=None,
-                    help="Manually specify release frame (overrides auto-detection)")
+                    help="Manual release frame (if None, interactive selector or auto-detect)")
+    ap.add_argument("--skip_frame_selector", action="store_true",
+                    help="Skip interactive frame selector and use auto-detection")
 
     args = ap.parse_args()
-
-    kpts_all = []
-    frame_ids = []
     
+    device = normalize_device(args.device)
+    
+    # Determine release frame
+    manual_release_frame = args.manual_release_frame
+    
+    if manual_release_frame is None and not args.skip_frame_selector:
+        print("\n[INFO] Opening interactive frame selector...")
+        manual_release_frame = select_release_frame(args.video)
+        
+        if manual_release_frame is None:
+            print("[INFO] No frame selected. Will use automatic release detection.")
+    
+    if manual_release_frame is not None:
+        print(f"[INFO] Using manual release frame: {manual_release_frame}")
+    else:
+        print("[INFO] Manual release frame not provided. Will use automatic detection.")
+
+    # Load models
+    print("\n[INFO] Loading models...")
+    m_pose = YOLO(args.pose_model)
+    if device:
+        m_pose.to(device)
+    m_det = YOLO(args.det_model)
+    if device:
+        m_det.to(device)
+
+    # Open video
     cap = cv2.VideoCapture(args.video)
     if not cap.isOpened():
-        raise RuntimeError(f"Cannot open {args.video}")
+        raise RuntimeError(f"Cannot open video: {args.video}")
 
-    fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+    fps = cap.get(cv2.CAP_PROP_FPS)
     W = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     H = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    base = os.path.splitext(os.path.basename(args.video))[0]
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-    out_dir = os.path.dirname(args.video) or "."
-    out_video = os.path.join(out_dir, f"{base}_combined.mp4")
-    out_json = os.path.join(out_dir, f"{base}_summary.json")
-    out_csv_ball = os.path.join(out_dir, f"{base}_ball_track.csv")
-    out_kpts = os.path.join(out_dir, f"{base}_kpts.csv")
+    base_name = os.path.splitext(os.path.basename(args.video))[0]
+    out_dir = "outputs"
+    os.makedirs(out_dir, exist_ok=True)
 
-    m_pose = YOLO(args.pose_model)
-    m_det = YOLO(args.det_model)
-    dev = normalize_device(args.device)
-    if dev is not None:
-        m_pose.to(dev)
-        m_det.to(dev)
+    out_video = os.path.join(out_dir, f"{base_name}_annotated.mp4")
+    out_csv_ball = os.path.join(out_dir, f"{base_name}_ball_track.csv")
+    out_kpts = os.path.join(out_dir, f"{base_name}_keypoints.csv")
+    out_json = os.path.join(out_dir, f"{base_name}_summary.json")
 
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     out = cv2.VideoWriter(out_video, fourcc, fps, (W, H))
 
-    ok, first = cap.read()
-    if not ok:
-        raise RuntimeError("Empty video")
+    print(f"[INFO] Video: {args.video}")
+    print(f"[INFO] FPS={fps}, Resolution={W}x{H}, TotalFrames={total_frames}")
+    print(f"[INFO] Pose model: {args.pose_model}")
+    print(f"[INFO] Ball det model: {args.det_model}")
+    print(f"[INFO] Device: {device}")
+    print(f"[INFO] Bowler height: {args.bowler_height_m} m")
+    print(f"[INFO] Hybrid tracking: {args.use_hybrid_tracking}")
+    print("[INFO] Processing frames...")
 
-    (st_mid, st_y0, st_y1), crease_y = detect_stumps_and_crease(first)
-
-    # Calibration using bowler height
-    res_p = m_pose.predict(first, imgsz=args.imgsz_pose, verbose=False)[0]
-    k0, _ = pick_person_keypoints(res_p)
-    if k0 is not None:
-        nose_y = k0[COCO_KPTS["nose"]][1]
-        lank_y = k0[COCO_KPTS["lank"]][1]
-        rank_y = k0[COCO_KPTS["rank"]][1]
-        ankle_y = max(lank_y, rank_y)
-        pixel_height = abs(ankle_y - nose_y)
-        if pixel_height > 0:
-            m_per_px = args.bowler_height_m / pixel_height
-            print(f"[INFO] Calibration: {m_per_px:.6f} m/px (bowler height method)")
-
-    cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-    
+    # First pass: pose + stumps
+    kpts_all = []
+    frame_ids = []
     prev_center = None
-    kf = None
-    ball_track = []
-    release_idx = None
-    release_time = None
-    release_detected = False
-    
-    # Store manual release frame if provided
-    manual_release_frame = args.manual_release_frame
-    if manual_release_frame is not None:
-        print(f"[INFO] Manual release frame specified: {manual_release_frame}")
-
-    # Release detection state (for auto-detection)
-    near_hand_count = 0
-    far_hand_count = 0
-    last_near_idx = None
-    hand_detected = False
-
-    wrist_idx = COCO_KPTS["rwri"] if args.handed == "right" else COCO_KPTS["lwri"]
-
-    f = -1
+    f = 0
+    st_mid, st_y0, st_y1 = None, None, None
+    crease_y = None
 
     while True:
         ret, frame = cap.read()
         if not ret:
             break
 
-        f += 1
-        t = f / fps
+        if f == 0:
+            (st_mid, st_y0, st_y1), crease_y = detect_stumps_and_crease(frame)
 
-        # Pose estimation
-        res_p = m_pose.predict(frame, imgsz=args.imgsz_pose, verbose=False)[0]
-        kpts, center = pick_person_keypoints(res_p, prev_center=prev_center)
-
-        if kpts is not None:
-            if prev_center is not None and center is not None:
-                if np.hypot(center[0] - prev_center[0], center[1] - prev_center[1]) > args.max_jump_px:
-                    kpts = None
-            if center is not None:
-                prev_center = center
-
+        res = m_pose.predict(frame, imgsz=args.imgsz_pose, verbose=False)[0]
+        kpts, prev_center = pick_person_keypoints(res, prev_center)
         kpts_all.append(kpts)
         frame_ids.append(f)
+        f += 1
+
+    cap.release()
+
+    if not kpts_all:
+        raise RuntimeError("No frames with keypoints detected.")
+
+    # Compute scale
+    heights = []
+    for k in kpts_all:
+        if k is None:
+            continue
+        nose_y = k[COCO_KPTS["nose"], 1]
+        lank_y = k[COCO_KPTS["lank"], 1]
+        rank_y = k[COCO_KPTS["rank"], 1]
+        if not np.isnan([nose_y, lank_y, rank_y]).any():
+            avg_ankle = (lank_y + rank_y) / 2.0
+            h_px = abs(avg_ankle - nose_y)
+            if h_px > 10:
+                heights.append(h_px)
+
+    if not heights:
+        raise RuntimeError("Could not measure body height in pixels.")
+    avg_h_px = np.median(heights)
+    m_per_px = args.bowler_height_m / avg_h_px
+
+    # Second pass: ball tracking
+    wrist_idx = COCO_KPTS["rwri"] if args.handed.lower() == "right" else COCO_KPTS["lwri"]
+    
+    ball_track = []
+    kf = None
+    release_detected = False
+    release_idx = 0
+    release_time = None
+    near_hand_count = 0
+    far_hand_count = 0
+    last_near_idx = None
+    hand_detected = False
+
+    cap = cv2.VideoCapture(args.video)
+    f = 0
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        kpts = kpts_all[f]
+        t = f / fps
 
         # Check if we've reached manual release frame
         if manual_release_frame is not None and f == manual_release_frame and not release_detected:
@@ -428,6 +589,7 @@ def main():
                            (10, 30))
 
         out.write(overlay)
+        f += 1
 
     cap.release()
     out.release()

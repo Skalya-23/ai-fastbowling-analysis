@@ -808,7 +808,7 @@ if __name__ == "__main__":
     print("\n=== COMPUTED METRICS ===\n")
     
     # Speed metrics
-    print(f"🚀 SPEED METRICS:")
+    print(f" SPEED METRICS:")
     
     # Estimated speed (biomechanical model)
     if metrics.get("estimated_release_speed_kph"):
@@ -832,7 +832,7 @@ if __name__ == "__main__":
     print()
     
     # Angle metrics
-    print(f"📐 ANGLE METRICS:")
+    print(f" ANGLE METRICS:")
     if metrics.get("back_knee_angle_bfc_deg"):
         print(f"  Back knee (BFC): {metrics['back_knee_angle_bfc_deg']:.1f}°")
     else:
@@ -851,7 +851,7 @@ if __name__ == "__main__":
     print()
     
     # Distance metrics
-    print(f"📏 DISTANCE METRICS:")
+    print(f" DISTANCE METRICS:")
     if metrics.get("release_height_m"):
         print(f"  Release height: {metrics['release_height_m']:.2f}m")
     if metrics.get("stride_length_m"):
@@ -864,18 +864,18 @@ if __name__ == "__main__":
     
     # Timing
     if metrics.get("BFC_to_release_s") or metrics.get("FFC_to_release_s"):
-        print(f"⏱️  TIMING:")
+        print(f" TIMING:")
         if metrics.get("BFC_to_release_s"):
-            print(f"  BFC → Release: {metrics['BFC_to_release_s']:.3f}s")
+            print(f"  BFC to Release: {metrics['BFC_to_release_s']:.3f}s")
         if metrics.get("FFC_to_release_s"):
-            print(f"  FFC → Release: {metrics['FFC_to_release_s']:.3f}s")
+            print(f"  FFC to Release: {metrics['FFC_to_release_s']:.3f}s")
         if metrics.get("BFC_contact_time_ms"):
             print(f"  BFC contact time: {metrics['BFC_contact_time_ms']:.1f}ms")
         print()
     
     # Landing and arm
     if metrics.get("BFC_landing_type") or metrics.get("arm_position_at_ffc"):
-        print(f"👟 TECHNIQUE:")
+        print(f" TECHNIQUE:")
         if metrics.get("BFC_landing_type"):
             print(f"  BFC landing: {metrics['BFC_landing_type']}")
         if metrics.get("arm_position_at_ffc"):
@@ -883,13 +883,13 @@ if __name__ == "__main__":
         print()
     
     # Diagnostics
-    print(f"🔍 DIAGNOSTICS:")
+    print(f" DIAGNOSTICS:")
     print(f"  Ball detections: {metrics.get('total_ball_detections', 0)}")
     print(f"  Measurements: {metrics.get('measurement_ball_detections', 0)} ({metrics.get('measurement_percentage', 0):.1f}%)")
     
     # Warnings
     if "warnings" in metrics:
-        print(f"\n⚠️  WARNINGS:")
+        print(f"\n  WARNINGS:")
         for w in metrics["warnings"]:
             print(f"  • {w}")
     
@@ -897,4 +897,4 @@ if __name__ == "__main__":
     with open(args.out_json, "w") as f:
         json.dump(make_json_safe(metrics), f, indent=2)
 
-    print(f"\n✅ Metrics saved to {args.out_json}")
+    print(f"\n Metrics saved to {args.out_json}")
