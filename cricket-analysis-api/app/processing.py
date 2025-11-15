@@ -7,6 +7,7 @@ import json
 import asyncio
 import logging
 from app.models import JobStatus
+import cv2
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -234,7 +235,7 @@ def extract_frames(video_path: Path, job_id: str) -> int:
     Extract all frames from video as thumbnails
     Returns the total number of frames
     """
-    import cv2
+
     
     frames_dir = UPLOADS_DIR / f"{job_id}_frames"
     frames_dir.mkdir(exist_ok=True)
