@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cricket Bowling Analysis | AI-Powered Biomechanics</title>
+    <title>CricKineticsAI | AI-Powered Bowling Analysis</title>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -17,8 +17,81 @@
         
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0f0f1a;
             min-height: 100vh;
+            color: #e0e0e0;
+        }
+        
+        /* Header Styles */
+        .site-header {
+            background: rgba(15, 15, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 40px;
+        }
+        
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        
+        .nav-links a.active {
+            color: #667eea;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+        
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+        
+        /* Main Content */
+        .main-content {
             padding: 40px 20px;
         }
         
@@ -27,31 +100,35 @@
             margin: 0 auto;
         }
         
-        .header {
+        .page-header {
             text-align: center;
             margin-bottom: 40px;
             color: white;
         }
         
-        .header h1 {
-            font-size: 48px;
+        .page-header h1 {
+            font-size: 42px;
             font-weight: 800;
             margin-bottom: 10px;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
-        .header p {
+        .page-header p {
             font-size: 18px;
-            opacity: 0.9;
+            color: #94a3b8;
             font-weight: 300;
         }
         
         .main-card {
-            background: white;
+            background: #1a1a2e;
             border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
             overflow: hidden;
             animation: slideUp 0.6s ease-out;
+            border: 1px solid rgba(102, 126, 234, 0.1);
         }
         
         @keyframes slideUp {
@@ -84,6 +161,7 @@
         
         .card-body {
             padding: 40px;
+            background: #1a1a2e;
         }
         
         .step-indicator {
@@ -95,31 +173,34 @@
         .step {
             display: flex;
             align-items: center;
-            color: #94a3b8;
+            color: #64748b;
         }
         
         .step-number {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: #e2e8f0;
+            background: #2a2a3e;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
             margin-right: 10px;
             transition: all 0.3s;
+            border: 2px solid #3a3a4e;
         }
         
         .step.active .step-number {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            border-color: transparent;
         }
         
         .step.completed .step-number {
             background: #10b981;
             color: white;
+            border-color: transparent;
         }
         
         .step-text {
@@ -128,13 +209,13 @@
         }
         
         .step.active .step-text {
-            color: #1e293b;
+            color: #e0e0e0;
         }
         
         .step-line {
             width: 80px;
             height: 3px;
-            background: #e2e8f0;
+            background: #2a2a3e;
             margin: 0 20px;
         }
         
@@ -143,15 +224,15 @@
         }
         
         .instructions-box {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border: 1px solid #bae6fd;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #334155;
             border-radius: 16px;
             padding: 24px;
             margin-bottom: 30px;
         }
         
         .instructions-box h3 {
-            color: #0369a1;
+            color: #667eea;
             font-size: 18px;
             margin-bottom: 15px;
             display: flex;
@@ -168,7 +249,7 @@
             padding: 8px 0;
             padding-left: 28px;
             position: relative;
-            color: #0c4a6e;
+            color: #94a3b8;
             font-size: 14px;
         }
         
@@ -176,7 +257,7 @@
             content: "✓";
             position: absolute;
             left: 0;
-            color: #0ea5e9;
+            color: #667eea;
             font-weight: bold;
         }
         
@@ -198,7 +279,7 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: #374151;
+            color: #94a3b8;
             font-size: 14px;
         }
         
@@ -209,33 +290,40 @@
         input[type="file"] {
             width: 100%;
             padding: 16px;
-            border: 2px dashed #d1d5db;
+            border: 2px dashed #3a3a4e;
             border-radius: 12px;
-            background: #f9fafb;
+            background: #0f0f1a;
             font-size: 14px;
             transition: all 0.3s;
             cursor: pointer;
+            color: #94a3b8;
         }
         
         input[type="file"]:hover {
             border-color: #667eea;
-            background: #f0f4ff;
+            background: #1a1a2e;
         }
         
         input[type="number"], select {
             width: 100%;
             padding: 14px 16px;
-            border: 2px solid #e5e7eb;
+            border: 2px solid #3a3a4e;
             border-radius: 12px;
             font-size: 16px;
             transition: all 0.3s;
-            background: white;
+            background: #0f0f1a;
+            color: #e0e0e0;
         }
         
         input[type="number"]:focus, select:focus {
             border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
             outline: none;
+        }
+        
+        select option {
+            background: #1a1a2e;
+            color: #e0e0e0;
         }
         
         .btn {
@@ -280,19 +368,22 @@
         }
         
         .btn-secondary {
-            background: #f1f5f9;
-            color: #475569;
+            background: #2a2a3e;
+            color: #94a3b8;
+            border: 1px solid #3a3a4e;
         }
         
         .btn-secondary:hover {
-            background: #e2e8f0;
+            background: #3a3a4e;
+            color: #e0e0e0;
         }
         
         .frames-container {
-            background: #f8fafc;
+            background: #0f0f1a;
             border-radius: 16px;
             padding: 20px;
             margin-top: 20px;
+            border: 1px solid #2a2a3e;
         }
         
         .frames-header {
@@ -304,7 +395,7 @@
         
         .frames-header h3 {
             font-size: 18px;
-            color: #1e293b;
+            color: #e0e0e0;
         }
         
         .selected-badge {
@@ -336,28 +427,28 @@
         }
         
         .frames-grid::-webkit-scrollbar-track {
-            background: #e2e8f0;
+            background: #1a1a2e;
             border-radius: 4px;
         }
         
         .frames-grid::-webkit-scrollbar-thumb {
-            background: #94a3b8;
+            background: #3a3a4e;
             border-radius: 4px;
         }
         
         .frame-card {
-            background: white;
+            background: #1a1a2e;
             border-radius: 12px;
             overflow: hidden;
             cursor: pointer;
             transition: all 0.3s;
             border: 3px solid transparent;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
         
         .frame-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
             border-color: #667eea;
         }
         
@@ -373,8 +464,8 @@
         
         .frame-label {
             padding: 10px;
-            background: #1e293b;
-            color: white;
+            background: #0f0f1a;
+            color: #94a3b8;
             font-size: 12px;
             font-weight: 500;
             text-align: center;
@@ -396,7 +487,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            border: 4px solid #e2e8f0;
+            border: 4px solid #2a2a3e;
             border-top-color: #667eea;
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -427,12 +518,12 @@
         
         .processing-text h3 {
             font-size: 24px;
-            color: #1e293b;
+            color: #e0e0e0;
             margin-bottom: 10px;
         }
         
         .processing-text p {
-            color: #64748b;
+            color: #94a3b8;
             font-size: 16px;
         }
         
@@ -446,8 +537,9 @@
         }
         
         .status-processing {
-            background: #dbeafe;
-            color: #1d4ed8;
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+            border: 1px solid rgba(102, 126, 234, 0.3);
         }
         
         .results-header {
@@ -471,12 +563,12 @@
         
         .results-header h2 {
             font-size: 32px;
-            color: #1e293b;
+            color: #e0e0e0;
             margin-bottom: 10px;
         }
         
         .results-header p {
-            color: #64748b;
+            color: #94a3b8;
             font-size: 16px;
         }
         
@@ -488,12 +580,12 @@
         }
         
         .download-card {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border: 2px solid #bae6fd;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 2px solid #334155;
             border-radius: 16px;
             padding: 24px 32px;
             text-decoration: none;
-            color: #0369a1;
+            color: #667eea;
             font-weight: 600;
             transition: all 0.3s;
             display: flex;
@@ -503,8 +595,8 @@
         
         .download-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.2);
-            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
         }
         
         .download-icon {
@@ -513,10 +605,10 @@
         
         .metrics-section h3 {
             font-size: 20px;
-            color: #1e293b;
+            color: #e0e0e0;
             margin-bottom: 24px;
             padding-bottom: 12px;
-            border-bottom: 2px solid #e2e8f0;
+            border-bottom: 2px solid #2a2a3e;
         }
         
         .metrics-grid {
@@ -526,17 +618,18 @@
         }
         
         .metric-card {
-            background: white;
+            background: #0f0f1a;
             border-radius: 16px;
             padding: 24px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             border-left: 5px solid #667eea;
             transition: all 0.3s;
+            border: 1px solid #2a2a3e;
         }
         
         .metric-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
         }
         
         .metric-card h4 {
@@ -550,25 +643,25 @@
         .metric-value {
             font-size: 36px;
             font-weight: 800;
-            color: #1e293b;
+            color: #e0e0e0;
             margin-bottom: 4px;
         }
         
         .metric-unit {
             font-size: 14px;
-            color: #94a3b8;
+            color: #64748b;
         }
         
         .warning-box {
-            background: #fef3c7;
-            border: 1px solid #fcd34d;
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
             border-radius: 12px;
             padding: 20px;
             margin-top: 30px;
         }
         
         .warning-box h4 {
-            color: #92400e;
+            color: #fbbf24;
             margin-bottom: 10px;
             font-size: 16px;
         }
@@ -579,15 +672,15 @@
         }
         
         .warning-box li {
-            color: #78350f;
+            color: #fcd34d;
             padding: 6px 0;
             font-size: 14px;
         }
         
         .error-message {
-            background: #fee2e2;
-            border: 1px solid #fca5a5;
-            color: #991b1b;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
             padding: 16px;
             border-radius: 12px;
             margin-bottom: 20px;
@@ -600,10 +693,45 @@
             gap: 16px;
             margin-top: 40px;
         }
+        
+        /* Footer */
+        .site-footer {
+            background: #0a0a14;
+            border-top: 1px solid rgba(102, 126, 234, 0.1);
+            padding: 30px 40px;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <header class="site-header">
+        <div class="header-content">
+            <div class="logo">CricKineticsAI</div>
+            <nav class="nav-links">
+                <a href="index.html" class="active">Home</a>
+                <a href="about.html">About Us</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div id="root"></div>
+    </main>
+    
+    <footer class="site-footer">
+        <div class="footer-content">
+            © 2024 CricKineticsAI. Advanced AI-Powered Bowling Analysis.
+        </div>
+    </footer>
     
     <script type="text/babel">
         const API_URL = 'https://ai-fastbowling-analysis-production.up.railway.app';
@@ -725,7 +853,7 @@
             
             return (
                 <div className="app-container">
-                    <header className="header">
+                    <header className="page-header">
                         <h1>🏏 Cricket Kinematic Bowling Analysis</h1>
                         <p>AI-Powered Biomechanics Analysis for Fast Bowlers</p>
                     </header>

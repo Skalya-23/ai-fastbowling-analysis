@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | CricKineticsAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0f0f1a;
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+        
+        /* Header Styles */
+        .site-header {
+            background: rgba(15, 15, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 40px;
+        }
+        
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        
+        .nav-links a.active {
+            color: #667eea;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+        
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding: 60px 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .page-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .page-title h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .page-title p {
+            font-size: 18px;
+            color: #94a3b8;
+            font-weight: 300;
+        }
+        
+        .content-section {
+            background: #1a1a2e;
+            border-radius: 24px;
+            padding: 50px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .content-section:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .section-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .content-section h2 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #e0e0e0;
+            margin-bottom: 25px;
+        }
+        
+        .content-section p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+        
+        .content-section p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .highlight {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 25px 0;
+        }
+        
+        .feature-list li {
+            padding: 12px 0;
+            padding-left: 35px;
+            position: relative;
+            color: #94a3b8;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .feature-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .tech-card {
+            background: #0f0f1a;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid #2a2a3e;
+            transition: all 0.3s;
+        }
+        
+        .tech-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+        
+        .tech-card h4 {
+            color: #667eea;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .tech-card p {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+        
+        /* Footer */
+        .site-footer {
+            background: #0a0a14;
+            border-top: 1px solid rgba(102, 126, 234, 0.1);
+            padding: 30px 40px;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-content">
+            <div class="logo">CricKineticsAI</div>
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="about.html" class="active">About Us</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-title">
+                <h1>About CricKineticsAI</h1>
+                <p>Revolutionizing cricket bowling analysis through artificial intelligence</p>
+            </div>
+            
+            <section class="content-section">
+                <div class="section-icon">💡</div>
+                <h2>Why We Created This</h2>
+                <p>
+                    Cricket bowling is one of the most technically demanding skills in sports, requiring perfect synchronization 
+                    of multiple body segments moving at high speeds. Professional bowlers spend years perfecting their technique, 
+                    often relying on expensive coaching and specialized equipment that's out of reach for most aspiring cricketers.
+                </p>
+                <p>
+                    We created <span class="highlight">CricKineticsAI</span> to democratize access to advanced biomechanical analysis. 
+                    Our mission is to provide every cricketer—from grassroots players to aspiring professionals—with the same 
+                    level of technical insight that was previously available only to elite athletes with access to sports science labs.
+                </p>
+                <p>
+                    By leveraging cutting-edge artificial intelligence and computer vision technology, we've made it possible 
+                    to analyze bowling technique using just a smartphone video. No expensive equipment, no specialized facilities—just 
+                    upload your video and receive detailed, actionable insights about your bowling biomechanics.
+                </p>
+                <ul class="feature-list">
+                    <li>Accessible to cricketers at all levels and budgets</li>
+                    <li>Objective, data-driven analysis removes guesswork</li>
+                    <li>Identifies injury risk factors before problems develop</li>
+                    <li>Tracks progress and technique changes over time</li>
+                    <li>Provides professional-grade insights instantly</li>
+                </ul>
+            </section>
+            
+            <section class="content-section">
+                <div class="section-icon">🔬</div>
+                <h2>The Science Behind It</h2>
+                <p>
+                    CricKineticsAI combines state-of-the-art <span class="highlight">deep learning</span> with established 
+                    <span class="highlight">sports biomechanics research</span> to deliver accurate, meaningful analysis of your 
+                    bowling action. Our system uses parallel neural networks working in concert to extract comprehensive 
+                    information from your video.
+                </p>
+                <p>
+                    At the core of our technology is <span class="highlight">YOLO (You Only Look Once)</span> object detection, 
+                    running simultaneously for two critical tasks: precise ball tracking to determine release point and speed, 
+                    and human pose estimation to capture the 3D positions of key body landmarks throughout the delivery stride.
+                </p>
+                <p>
+                    The extracted pose data is then processed through our biomechanical analysis engine, which calculates 
+                    key performance indicators based on peer-reviewed cricket science research. These metrics include joint angles, 
+                    segment velocities, and coordination patterns that have been scientifically linked to bowling speed, accuracy, 
+                    and injury risk.
+                </p>
+                
+                <div class="tech-grid">
+                    <div class="tech-card">
+                        <h4>Pose Estimation</h4>
+                        <p>Tracks 17+ body keypoints at 30+ FPS to capture precise joint positions</p>
+                    </div>
+                    <div class="tech-card">
+                        <h4>Ball Tracking</h4>
+                        <p>Sub-pixel accuracy ball detection to determine exact release point</p>
+                    </div>
+                    <div class="tech-card">
+                        <h4>Biomechanical Engine</h4>
+                        <p>Calculates angles, velocities, and timing based on sports science</p>
+                    </div>
+                    <div class="tech-card">
+                        <h4>Speed Estimation</h4>
+                        <p>Physics-based modeling using bowler height for calibration</p>
+                    </div>
+                </div>
+                
+                <p style="margin-top: 30px;">
+                    Our analysis covers critical biomechanical factors including front knee bracing angle (associated with 
+                    pace generation), hip-shoulder separation (counter-rotation), lateral trunk flexion (injury risk factor), 
+                    and arm position timing—all scientifically validated metrics used by professional cricket biomechanists worldwide.
+                </p>
+            </section>
+        </div>
+    </main>
+    
+    <footer class="site-footer">
+        <div class="footer-content">
+            © 2024 CricKineticsAI. Advanced AI-Powered Bowling Analysis.
+        </div>
+    </footer>
+</body>
+</html>
