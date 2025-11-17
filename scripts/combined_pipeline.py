@@ -603,8 +603,17 @@ def main():
         print(f"[INFO] Estimated release at frame {ball_track[release_idx]['frame']}, t={release_time:.3f}s")
 
     # Event detection - PASS RELEASE FRAME
-    release_frame_for_events = ball_track[release_idx]["frame"] if release_idx is not None and release_idx < len(ball_track) else None
+    # Use manual_release_frame directly if provided, otherwise use detected release
+    if manual_release_frame is not None:
+        release_frame_for_events = manual_release_frame
+    elif release_idx is not None and release_idx < len(ball_track):
+        release_frame_for_events = ball_track[release_idx]["frame"]
+    else:
+        release_frame_for_events = None
+    
+    print(f"[DEBUG] release_frame_for_events = {release_frame_for_events}")
     bfc_idx, ffc_idx, info = detect_bfc_ffc(kpts_all, fps=fps, handed=args.handed, release_frame=release_frame_for_events)
+
     
     bfc_frame = frame_ids[bfc_idx] if bfc_idx is not None else None
     ffc_frame = frame_ids[ffc_idx] if ffc_idx is not None else None

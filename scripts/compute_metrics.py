@@ -547,7 +547,7 @@ def estimate_release_ball_speed(metrics):
     v_release_kph = (
         0.72
         + 0.35 * runup_kph
-        + 4.50 * wrist_kph
+        + 1.3 * wrist_kph
         + 4.00 * math.cos(math.radians(180 - front_knee_deg))
         + 1.25 * math.cos(math.radians(180 - back_knee_deg))
         - 6.50 * (bfc_ms / 1000)
@@ -690,6 +690,24 @@ def compute_metrics(summary_json, ball_csv, kpts_csv, handed="right"):
     # ============ DISTANCE METRICS ============
     
     metrics["release_height_m"] = release_height_m_fixed(kpts_all, release_frame, m_per_px, handed)
+    # Fallback for release height: if less than 1.05x bowler height, use 1.12x bowler height
+    if metrics["release_height_m"] is not None and bowler_height_m is not None:
+        min_expected_height = bowler_height_m * 1.05
+        if metrics["release_height_m"] < min_expected_height:
+            fallback_height = bowler_height_m * 1.09
+            print(f"[WARN] Release height {metrics['release_height_m']:.2f}m is less than 1.05x bowler height ({min_expected_height:.2f}m)")
+            print(f"[INFO] Using fallback: 1.09 x {bowler_height_m:.2f}m = {fallback_height:.2f}m")
+            metrics["release_height_m"] = fallback_height
+            metrics["release_height_fallback_used"] = True
+        else:
+            metrics["release_height_fallback_used"] = False
+    else:
+        # If no release height detected at all, use fallback
+        if bowler_height_m is not None:
+            fallback_height = bowler_height_m * 1.09
+            print(f"[WARN] Release height not detected, using fallback: 1.09 x {bowler_height_m:.2f}m = {fallback_height:.2f}m")
+            metrics["release_height_m"] = fallback_height
+            metrics["release_height_fallback_used"] = True
     metrics["stride_length_m"] = stride_length_m(kpts_all, bfc_idx, ffc_idx, m_per_px, handed)
     
     # Run-up speed
@@ -737,25 +755,37 @@ def compute_metrics(summary_json, ball_csv, kpts_csv, handed="right"):
     
     metrics["arm_position_at_ffc"] = arm_position_at_ffc(kpts_all, ffc_idx, handed)
     
-    # Wrist speed
-    if release_frame is not None and len(kpts_all) > release_frame + 5:
+    # Wrist speed - MAX frame-to-frame speed from 5 frames before to 1 frame after release
+    if release_frame is not None and m_per_px:
         wrist_idx = COCO_KPTS["rwri"] if handed == "right" else COCO_KPTS["lwri"]
         
-        wrist_positions = []
-        wrist_times = []
+        max_speed_mps = 0
+        max_speed_frame = None
         
-        for i in range(max(0, release_frame - 10), min(len(kpts_all), release_frame + 3)):
-            k = kpts_all[i]
-            if k is not None and not np.isnan(k[wrist_idx]).any():
-                wrist_positions.append(tuple(k[wrist_idx]))
-                wrist_times.append(i / fps)
+        # Check frames: 5 before release to 1 after release
+        # This means transitions: (rel-5)→(rel-4), ..., (rel)→(rel+1)
+        for i in range(release_frame - 4, release_frame + 2):
+            if i < 1 or i >= len(kpts_all):
+                continue
+                
+            k_prev = kpts_all[i-1]
+            k_curr = kpts_all[i]
+            
+            if k_prev is not None and k_curr is not None:
+                if not np.isnan(k_prev[wrist_idx]).any() and not np.isnan(k_curr[wrist_idx]).any():
+                    dx = k_curr[wrist_idx][0] - k_prev[wrist_idx][0]
+                    dy = k_curr[wrist_idx][1] - k_prev[wrist_idx][1]
+                    dist_px = np.sqrt(dx**2 + dy**2)
+                    speed_px_s = dist_px * fps
+                    speed_mps = speed_px_s * m_per_px
+                    
+                    if speed_mps > max_speed_mps:
+                        max_speed_mps = speed_mps
+                        max_speed_frame = i
         
-        if len(wrist_positions) >= 5 and m_per_px:
-            v_mps = instantaneous_speed_measurements_only(wrist_positions, wrist_times, m_per_px)
-            if v_mps:
-                metrics["wrist_speed_mps"] = v_mps
-                metrics["wrist_speed_kph"] = v_mps * 3.6
- 
+        if max_speed_mps > 0:
+            metrics["wrist_speed_mps"] = max_speed_mps
+            metrics["wrist_speed_kph"] = max_speed_mps * 3.6
     
     
     # ============ DIAGNOSTIC INFO ============

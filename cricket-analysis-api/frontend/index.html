@@ -572,6 +572,17 @@
             font-size: 16px;
         }
         
+        .video-preview {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .video-preview h3 {
+            font-size: 20px;
+            color: #e0e0e0;
+            margin-bottom: 20px;
+        }
+        
         .download-section {
             display: flex;
             gap: 20px;
@@ -1030,14 +1041,31 @@
                                         <p>Your bowling biomechanics have been analyzed</p>
                                     </div>
                                     
+                                    <div className="video-preview">
+                                        <h3>Annotated Video</h3>
+                                        <video 
+                                            controls 
+                                            src={`${API_URL}/v1/video/${jobId}/download/video`}
+                                            style={{
+                                                width: '100%',
+                                                maxWidth: '800px',
+                                                borderRadius: '16px',
+                                                backgroundColor: '#000',
+                                                boxShadow: '0 8px 30px rgba(0,0,0,0.5)'
+                                            }}
+                                        >
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    </div>
+                                    
                                     <div className="download-section">
                                         <a href={`${API_URL}/v1/video/${jobId}/download/video`} className="download-card" download>
                                             <span className="download-icon">📹</span>
                                             <span>Download Annotated Video</span>
                                         </a>
-                                        <a href={`${API_URL}/v1/video/${jobId}/download/metrics`} className="download-card" target="_blank">
+                                        <a href={`${API_URL}/v1/video/${jobId}/download/metrics`} className="download-card" download="metrics.json">
                                             <span className="download-icon">📊</span>
-                                            <span>View Full JSON Report</span>
+                                            <span>Download JSON Report</span>
                                         </a>
                                     </div>
                                     

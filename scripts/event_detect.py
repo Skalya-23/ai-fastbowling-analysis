@@ -1,4 +1,4 @@
-# event_detect_smart.py - Smart BFC/FFC detection based on release frame
+# event_detect.py - Robust BFC/FFC detection for multiple camera angles
 
 import numpy as np
 from metrics_util import smooth
@@ -18,39 +18,57 @@ def _extract_ankle_y(kpts_all, idx):
     return np.array(ys, dtype=float)
 
 
-def smooth_series(y, win=5):
-    """Smooth a series to reduce jitter. Using smaller window for better peak detection."""
+def smooth_series(y, win=3):
+    """Smooth a series to reduce jitter."""
     import pandas as pd
     return smooth(pd.Series(y), win=win).to_numpy()
 
 
-def find_local_maxima(y, window=3):
+def find_peaks_in_window(y, search_start, search_end, percentile_threshold=50):
     """
-    Find local maxima (peaks) in ankle Y data.
-    Higher Y = more grounded = peak indicates ground contact.
+    Find local maxima (peaks) in ankle Y data within search window.
+    Lower percentile threshold to catch more peaks.
     
     Args:
         y: Ankle Y positions
-        window: Frames on each side to compare
+        search_start: Start frame (inclusive)
+        search_end: End frame (exclusive)
+        percentile_threshold: Minimum percentile to qualify as peak (default 50)
     
     Returns:
         List of (frame_idx, y_value) for peaks
     """
     peaks = []
-    n = len(y)
+    window = 3  # Check 3 frames on each side
     
-    for i in range(window, n - window):
+    # Calculate threshold
+    y_slice = y[search_start:search_end]
+    valid_y = y_slice[~np.isnan(y_slice)]
+    if len(valid_y) == 0:
+        return peaks
+    
+    threshold = np.percentile(valid_y, percentile_threshold)
+    
+    for i in range(search_start, search_end):
         if np.isnan(y[i]):
             continue
         
-        # Check if this point is higher than neighbors
+        # Skip if below threshold
+        if y[i] < threshold:
+            continue
+        
+        # Check if local maximum
         is_peak = True
         for j in range(-window, window + 1):
             if j == 0:
                 continue
-            if np.isnan(y[i + j]):
+            neighbor_idx = i + j
+            # Allow checking outside search window for neighbor comparison
+            if neighbor_idx < 0 or neighbor_idx >= len(y):
                 continue
-            if y[i + j] >= y[i]:
+            if np.isnan(y[neighbor_idx]):
+                continue
+            if y[neighbor_idx] >= y[i]:
                 is_peak = False
                 break
         
@@ -64,12 +82,8 @@ def detect_bfc_ffc_from_release(kpts_all, release_frame, fps=30.0, handed="right
     """
     Detect BFC and FFC by looking backwards from release frame.
     
-    Strategy:
-    1. Start from release frame
-    2. Look backwards 0.2-0.6 seconds for delivery stride contacts
-    3. Find peaks in ankle Y (peaks = ground contacts)
-    4. Back foot contact (BFC) should be ~0.3-0.5s before release
-    5. Front foot contact (FFC) should be ~0.1-0.2s before release
+    Uses peak detection (maximum ankle Y = most grounded position).
+    Works for both side and back camera angles.
     
     Args:
         kpts_all: List of keypoint arrays
@@ -84,28 +98,25 @@ def detect_bfc_ffc_from_release(kpts_all, release_frame, fps=30.0, handed="right
         print("[WARN] No release frame provided, cannot detect BFC/FFC")
         return None, None, {}
     
-    # Extract ankle data
+    # Extract ankle data (use RAW data for peak detection to avoid smoothing artifacts)
     yL = _extract_ankle_y(kpts_all, L_ANK)
     yR = _extract_ankle_y(kpts_all, R_ANK)
     
-    # Smooth to reduce noise
-    yL_smooth = smooth_series(yL, win=5)
-    yR_smooth = smooth_series(yR, win=5)
-    
-    # Determine back vs front foot
+    # Determine back vs front foot (use raw data for more precise peak detection)
     if handed.lower() == "right":
-        back_y = yR_smooth
-        front_y = yL_smooth
+        back_y = yR
+        front_y = yL
         back_letter = "R"
+        front_letter = "L"
     else:
-        back_y = yL_smooth
-        front_y = yR_smooth
+        back_y = yL
+        front_y = yR
         back_letter = "L"
+        front_letter = "R"
     
-    # Define search window (look backwards from release)
-    # For fast bowling: BFC is ~0.3-0.5s before release, FFC is ~0.1-0.25s before release
-    search_start = max(0, release_frame - int(0.6 * fps))  # 0.6s before release
-    search_end = release_frame - int(0.05 * fps)  # Stop 0.05s before release
+    # Define search window (wide range to catch all bowling styles)
+    search_start = max(0, release_frame - int(0.8 * fps))  # 0.8s before release
+    search_end = release_frame - int(0.02 * fps)  # Stop 0.02s before release
     
     if search_start >= search_end:
         print(f"[WARN] Invalid search window: {search_start} to {search_end}")
@@ -113,64 +124,38 @@ def detect_bfc_ffc_from_release(kpts_all, release_frame, fps=30.0, handed="right
     
     print(f"[INFO] Searching for BFC/FFC in frames {search_start}-{search_end} (release at {release_frame})")
     
-    # Find peaks (local maxima) in search window
-    back_peaks = []
-    front_peaks = []
-    
-    for i in range(search_start, search_end):
-        # Check back ankle
-        if not np.isnan(back_y[i]):
-            # Is this a local maximum?
-            window = 3
-            is_peak = True
-            for j in range(-window, window + 1):
-                if j == 0 or i + j < search_start or i + j >= search_end:
-                    continue
-                if not np.isnan(back_y[i + j]) and back_y[i + j] >= back_y[i]:
-                    is_peak = False
-                    break
-            if is_peak and back_y[i] > np.nanpercentile(back_y[search_start:search_end], 70):
-                back_peaks.append((i, back_y[i]))
-        
-        # Check front ankle
-        if not np.isnan(front_y[i]):
-            window = 3
-            is_peak = True
-            for j in range(-window, window + 1):
-                if j == 0 or i + j < search_start or i + j >= search_end:
-                    continue
-                if not np.isnan(front_y[i + j]) and front_y[i + j] >= front_y[i]:
-                    is_peak = False
-                    break
-            if is_peak and front_y[i] > np.nanpercentile(front_y[search_start:search_end], 70):
-                front_peaks.append((i, front_y[i]))
+    # Find peaks with lower threshold (50th percentile instead of 70th)
+    back_peaks = find_peaks_in_window(back_y, search_start, search_end, percentile_threshold=50)
+    front_peaks = find_peaks_in_window(front_y, search_start, search_end, percentile_threshold=50)
     
     print(f"[INFO] Found {len(back_peaks)} back foot peaks, {len(front_peaks)} front foot peaks")
     
-    if not back_peaks or not front_peaks:
-        print("[WARN] Could not find peaks for both feet")
-        return None, None, {}
+    if back_peaks:
+        print(f"[DEBUG] Back foot peaks at frames: {[p[0] for p in back_peaks]}")
+    if front_peaks:
+        print(f"[DEBUG] Front foot peaks at frames: {[p[0] for p in front_peaks]}")
     
-    # Select the LAST peaks (closest to release) that satisfy timing constraints
-    bfc_idx = None
-    ffc_idx = None
+    if not back_peaks and not front_peaks:
+        print("[WARN] No peaks found for either foot")
+        return None, None, {}
     
     # Sort peaks by frame
     back_peaks.sort(key=lambda x: x[0])
     front_peaks.sort(key=lambda x: x[0])
     
-    # For fast bowling:
-    # - BFC should be 0.25-0.50s before release (7-15 frames at 30fps)
-    # - FFC should be 0.08-0.25s before release (2-7 frames at 30fps)
-    # - FFC must come after BFC
+    # WIDE timing constraints to accommodate different bowling styles
+    # BFC: 0.15-0.80s before release
+    # FFC: 0.02-0.40s before release
+    bfc_min_frames = int(0.15 * fps)
+    bfc_max_frames = int(0.80 * fps)
+    ffc_min_frames = int(0.02 * fps)
+    ffc_max_frames = int(0.40 * fps)
     
-    bfc_min_frames = int(0.25 * fps)  # At least 0.25s before release
-    bfc_max_frames = int(0.50 * fps)  # At most 0.50s before release
+    print(f"[DEBUG] BFC timing window: {bfc_min_frames}-{bfc_max_frames} frames ({bfc_min_frames/fps:.2f}-{bfc_max_frames/fps:.2f}s)")
+    print(f"[DEBUG] FFC timing window: {ffc_min_frames}-{ffc_max_frames} frames ({ffc_min_frames/fps:.2f}-{ffc_max_frames/fps:.2f}s)")
     
-    ffc_min_frames = int(0.08 * fps)  # At least 0.08s before release
-    ffc_max_frames = int(0.25 * fps)  # At most 0.25s before release
-    
-    # Find BFC: last back foot peak in the valid range
+    # Find BFC: last back foot peak in valid range
+    bfc_idx = None
     for frame, y_val in reversed(back_peaks):
         frames_before = release_frame - frame
         if bfc_min_frames <= frames_before <= bfc_max_frames:
@@ -178,33 +163,59 @@ def detect_bfc_ffc_from_release(kpts_all, release_frame, fps=30.0, handed="right
             print(f"[INFO] BFC detected at frame {bfc_idx} ({frames_before} frames / {frames_before/fps:.3f}s before release)")
             break
     
-    # Find FFC: last front foot peak in the valid range AND after BFC
+    # If no BFC found in timing window, take the highest peak
+    if bfc_idx is None and back_peaks:
+        # Find peak with maximum Y value (most grounded)
+        best_peak = max(back_peaks, key=lambda x: x[1])
+        bfc_idx = best_peak[0]
+        frames_before = release_frame - bfc_idx
+        print(f"[INFO] BFC detected at frame {bfc_idx} ({frames_before} frames / {frames_before/fps:.3f}s before release)")
+        print(f"       [Note: Selected by maximum Y, outside preferred timing window]")
+    
+    # Find FFC: last front foot peak in valid range AND after BFC
+    ffc_idx = None
     for frame, y_val in reversed(front_peaks):
         frames_before = release_frame - frame
         if ffc_min_frames <= frames_before <= ffc_max_frames:
-            if bfc_idx is None or frame > bfc_idx:  # FFC must be after BFC
+            if bfc_idx is None or frame > bfc_idx:
                 ffc_idx = frame
                 print(f"[INFO] FFC detected at frame {ffc_idx} ({frames_before} frames / {frames_before/fps:.3f}s before release)")
                 break
     
+    # If no FFC in timing window, find highest peak after BFC
+    if ffc_idx is None and front_peaks:
+        candidates = [p for p in front_peaks if bfc_idx is None or p[0] > bfc_idx]
+        if candidates:
+            best_peak = max(candidates, key=lambda x: x[1])
+            ffc_idx = best_peak[0]
+            frames_before = release_frame - ffc_idx
+            print(f"[INFO] FFC detected at frame {ffc_idx} ({frames_before} frames / {frames_before/fps:.3f}s before release)")
+            print(f"       [Note: Selected by maximum Y, outside preferred timing window]")
+    
     # Validate the pair
     if bfc_idx is not None and ffc_idx is not None:
         if ffc_idx <= bfc_idx:
-            print(f"[WARN] FFC ({ffc_idx}) is not after BFC ({bfc_idx}), invalidating")
+            print(f"[WARN] FFC ({ffc_idx}) is not after BFC ({bfc_idx}), invalidating FFC")
             ffc_idx = None
         else:
             gap_frames = ffc_idx - bfc_idx
             gap_s = gap_frames / fps
             print(f"[INFO] BFC→FFC gap: {gap_frames} frames ({gap_s:.3f}s)")
             
-            # Sanity check: gap should be reasonable (0.05-0.30s for fast bowling)
-            if gap_s < 0.05 or gap_s > 0.35:
-                print(f"[WARN] BFC→FFC gap ({gap_s:.3f}s) seems unusual")
+            if gap_s < 0.05:
+                print(f"[WARN] Gap very short - verify visually")
+            if gap_s > 0.5:
+                print(f"[WARN] Gap unusually long - verify visually")
+    
+    if bfc_idx is None:
+        print("[WARN] No valid BFC found")
+    if ffc_idx is None:
+        print("[WARN] No valid FFC found")
     
     return (
         int(bfc_idx) if bfc_idx is not None else None,
         int(ffc_idx) if ffc_idx is not None else None,
-        {"bfc_foot": back_letter}
+        {"bfc_foot": back_letter, "ffc_foot": front_letter}
     )
 
 
@@ -213,7 +224,7 @@ def detect_bfc_ffc(kpts_all, fps=30.0, handed="right", release_frame=None):
     Main entry point for BFC/FFC detection.
     
     If release_frame is provided, uses smart backwards search.
-    Otherwise falls back to old method (not recommended).
+    Otherwise returns None for both.
     """
     if release_frame is not None:
         return detect_bfc_ffc_from_release(kpts_all, release_frame, fps, handed)
