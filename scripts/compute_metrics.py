@@ -489,26 +489,33 @@ def arm_position_at_ffc(kpts_all, ffc_idx, handed="right"):
         return "at_shoulder"
     
 # ============================================================================
-# ADD THIS FUNCTION to compute_metrics.py (after the other metric functions)
+# Biomechanical release speed estimation (v2 with weight and bowling style)
 # ============================================================================
 
 def estimate_release_ball_speed(metrics):
     """
-    Estimate ball release speed using biomechanical equation.
-    
-    This uses a regression model based on bowling biomechanics research.
-    More reliable than direct ball tracking for side-view videos.
-    
-    Args:
-        metrics: Dict containing all computed metrics
-    
+    Estimate ball release speed (empirical, interpretable).
+    Inputs (keys expected in metrics dict):
+        - runup_speed_kph
+        - wrist_speed_kph
+        - front_knee_angle_ffc_deg
+        - back_knee_angle_bfc_deg
+        - BFC_contact_time_ms
+        - BFC_landing_type            ("toe_first" or other)
+        - arm_position_at_ffc         ("below_shoulder" or other)
+        - lateral_flexion_release_deg
+        - stride_length_m
+        - release_height_m
+        - bowler_height_m
+        - weight_kg
+        - bowling_style               ("side_on","semi_side_on","front_on")
     Returns:
-        Dict with estimated speeds in kph and mph, or None if insufficient data
+        dict with estimated_release_speed_kph and estimated_release_speed_mph
     """
-    # Check if we have all required inputs
+    # required keys check
     required = [
         "runup_speed_kph",
-        "wrist_speed_kph", 
+        "wrist_speed_kph",
         "front_knee_angle_ffc_deg",
         "back_knee_angle_bfc_deg",
         "BFC_contact_time_ms",
@@ -517,55 +524,101 @@ def estimate_release_ball_speed(metrics):
         "lateral_flexion_release_deg",
         "stride_length_m",
         "release_height_m",
-        "bowler_height_m"
+        "bowler_height_m",
+        "weight_kg",
+        "bowling_style"
     ]
-    
-    # Check which are missing
     missing = [k for k in required if metrics.get(k) is None]
-    
     if missing:
         return {
             "estimated_release_speed_kph": None,
             "estimated_release_speed_mph": None,
             "estimation_missing_inputs": missing
         }
-    
-    # Extract values
-    runup_kph = metrics["runup_speed_kph"]
-    wrist_kph = metrics["wrist_speed_kph"]
-    front_knee_deg = metrics["front_knee_angle_ffc_deg"]
-    back_knee_deg = metrics["back_knee_angle_bfc_deg"]
-    bfc_ms = metrics["BFC_contact_time_ms"]
+
+    # --- extract ---
+    runup_kph = float(metrics["runup_speed_kph"])
+    wrist_kph = float(metrics["wrist_speed_kph"])
+    front_knee_deg = float(metrics["front_knee_angle_ffc_deg"])
+    back_knee_deg = float(metrics["back_knee_angle_bfc_deg"])
+    bfc_ms = float(metrics["BFC_contact_time_ms"])
     landing_type = metrics["BFC_landing_type"]
     arm_pos = metrics["arm_position_at_ffc"]
-    latflex_deg = metrics["lateral_flexion_release_deg"]
-    stride_m = metrics["stride_length_m"]
-    release_m = metrics["release_height_m"]
-    height_m = metrics["bowler_height_m"]
-    
-    # Apply the biomechanical equation
-    v_release_kph = (
-        0.72
-        + 0.35 * runup_kph
-        + 1.3 * wrist_kph
-        + 4.00 * math.cos(math.radians(180 - front_knee_deg))
-        + 1.25 * math.cos(math.radians(180 - back_knee_deg))
-        - 6.50 * (bfc_ms / 1000)
-        + (1.0 if landing_type == "toe_first" else 0.0)
-        - (1.5 if arm_pos == "below_shoulder" else 0.0)
-        + 2.50 * math.exp(-((latflex_deg - 32)**2) / (2 * 10**2))
-        + 1.00 * (stride_m / height_m)
-        + 1.50 * (release_m / height_m)
-        + 5.00 * height_m
-        - 6.8  # calibration offset
+    latflex_deg = float(metrics["lateral_flexion_release_deg"])
+    stride_m = float(metrics["stride_length_m"])
+    release_m = float(metrics["release_height_m"])
+    height_m = float(metrics["bowler_height_m"])
+    weight_kg = float(metrics["weight_kg"])
+    bowling_style = metrics["bowling_style"]
+
+    # --- unit conversions (kph -> m/s) ---
+    kph_to_ms = 1000.0 / 3600.0
+    runup_ms = runup_kph * kph_to_ms
+    wrist_ms = wrist_kph * kph_to_ms
+
+    # --- derived, normalized features ---
+    front_knee_ext = max(0.0, min(1.0, (180.0 - front_knee_deg) / 180.0))
+    back_knee_ext  = max(0.0, min(1.0, (180.0 - back_knee_deg)  / 180.0))
+
+    contact_s = max(0.001, bfc_ms / 1000.0)
+    contact_factor = max(-0.08, 0.18 - contact_s)
+
+    sigma = 12.0
+    latflex_effect = math.exp(-((latflex_deg - 32.0) ** 2) / (2.0 * sigma ** 2))
+
+    stride_ratio = stride_m / max(0.1, height_m)
+    release_ratio = release_m / max(0.1, height_m)
+
+    landing_val = 0.6 if landing_type == "toe_first" else 0.0
+    arm_val = -0.8 if arm_pos == "below_shoulder" else 0.0
+    style_map = {"side_on": -0.6, "semi_side_on": 0.0, "front_on": 0.6}
+    style_val = style_map.get(bowling_style, 0.0)
+
+    # --- coefficients ---
+    a0 = 5.0
+    a_runup = 0.22
+    a_wrist = 0.90
+    a_front_knee = 1.5
+    a_back_knee = 0.8
+    a_contact = 4.0
+    a_latflex = 1.8
+    a_stride = 1.2
+    a_release = 0.9
+    a_height = 0.60
+    a_weight = 0.01
+    a_landing = 1.0
+    a_arm = 1.0
+    a_style = 1.0
+
+    # --- compute v_ms (m/s) ---
+    v_ms = (
+        a0
+        + a_runup * runup_ms
+        + a_wrist * wrist_ms
+        + a_front_knee * front_knee_ext
+        + a_back_knee * back_knee_ext
+        + a_contact * contact_factor
+        + a_latflex * latflex_effect
+        + a_stride * stride_ratio
+        + a_release * release_ratio
+        + a_height * height_m
+        + a_weight * weight_kg
+        + a_landing * landing_val
+        + a_arm * arm_val
+        + a_style * style_val
     )
-    
-    # Convert to mph
-    v_release_mph = v_release_kph * 0.621371
-    
+
+    # --- bounds ---
+    v_ms = max(8.0, min(45.0, v_ms))
+
+    # --- convert out ---
+    v_kph = v_ms * 3.6
+    v_mph = v_kph * 0.621371
+
     return {
-        "estimated_release_speed_kph": float(v_release_kph),
-        "estimated_release_speed_mph": float(v_release_mph)
+        "estimated_release_speed_kph": round(v_kph, 1),
+        "estimated_release_speed_mph": round(v_mph, 1),
+        "internal_v_ms": round(v_ms, 3)
     }
 
 
@@ -800,10 +853,7 @@ def compute_metrics(summary_json, ball_csv, kpts_csv, handed="right"):
     metrics["calibration_m_per_px"] = m_per_px
     metrics["fps"] = fps
 
-  # ============ ESTIMATED BALL SPEED (BIOMECHANICAL MODEL) ============
-    
-    estimated_speed = estimate_release_ball_speed(metrics)
-    metrics.update(estimated_speed)
+    # Note: estimate_release_ball_speed is called in CLI after adding weight_kg and bowling_style
     
     # Warning flags
     warnings = []
@@ -833,6 +883,17 @@ if __name__ == "__main__":
     args = ap.parse_args()
 
     metrics = compute_metrics(args.summary_json, args.ball_csv, args.kpts_csv, handed=args.handed)
+    
+    # Load weight_kg and bowling_style from summary JSON
+    with open(args.summary_json, "r") as f:
+        summary = json.load(f)
+    
+    metrics["weight_kg"] = summary.get("weight_kg")
+    metrics["bowling_style"] = summary.get("bowling_style")
+    
+    # Now call the estimation with all required inputs
+    estimated_speed = estimate_release_ball_speed(metrics)
+    metrics.update(estimated_speed)
 
     # Pretty print to console
     print("\n=== COMPUTED METRICS ===\n")

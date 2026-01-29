@@ -343,6 +343,10 @@ def main():
                     help="Manual release frame (if None, interactive selector or auto-detect)")
     ap.add_argument("--skip_frame_selector", action="store_true",
                     help="Skip interactive frame selector and use auto-detection")
+    ap.add_argument("--weight_kg", type=float, required=True, 
+                help="Bowler weight in kilograms")
+    ap.add_argument("--bowling_style", choices=["side_on", "semi_side_on", "front_on"], 
+                required=True, help="Bowling action style")
 
     args = ap.parse_args()
     
@@ -650,6 +654,8 @@ def main():
         "frame_h": int(H),
         "scale_m_per_px": float(m_per_px) if m_per_px else None,
         "bowler_height_m": float(args.bowler_height_m),
+        "weight_kg": float(args.weight_kg),
+        "bowling_style": args.bowling_style,
         "release_time_s": float(release_time) if release_time else None,
         "release_frame": int(ball_track[release_idx]["frame"]) if release_idx is not None and release_idx < len(ball_track) else None,
         "hybrid_tracking_used": args.use_hybrid_tracking,

@@ -7,7 +7,7 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
@@ -15,197 +15,123 @@
             padding: 0;
         }
         
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --accent: #8b5cf6;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --dark-bg: #0a0a0f;
-            --card-bg: #151520;
-            --card-border: #1e1e2e;
-            --text-primary: #ffffff;
-            --text-secondary: #a1a1aa;
-            --text-muted: #71717a;
-        }
-        
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--dark-bg);
-            color: var(--text-primary);
-            overflow-x: hidden;
+            background: #0f0f1a;
+            min-height: 100vh;
+            color: #e0e0e0;
         }
         
-        /* Animated Background */
-        .bg-gradient {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(ellipse at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 70%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
-            z-index: 0;
-            animation: gradientShift 20s ease infinite;
-        }
-        
-        @keyframes gradientShift {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
-        
-        /* Floating Particles */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-        
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: var(--primary);
-            border-radius: 50%;
-            opacity: 0.3;
-            animation: float linear infinite;
-        }
-        
-        @keyframes float {
-            0% {
-                transform: translateY(100vh) translateX(0);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.3;
-            }
-            90% {
-                opacity: 0.3;
-            }
-            100% {
-                transform: translateY(-100px) translateX(100px);
-                opacity: 0;
-            }
-        }
-        
-        /* Header */
+        /* Header Styles */
         .site-header {
+            background: rgba(15, 15, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+            padding: 0 40px;
             position: sticky;
             top: 0;
             z-index: 1000;
-            background: rgba(10, 10, 15, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(99, 102, 241, 0.1);
         }
         
         .header-content {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 80px;
+            height: 70px;
         }
         
         .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
             font-size: 24px;
-            font-weight: 900;
-            letter-spacing: -0.5px;
-        }
-        
-        .logo-icon {
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .logo-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        
-        .logo-text {
-            background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            letter-spacing: -0.5px;
         }
         
         .nav-links {
             display: flex;
             gap: 40px;
-            align-items: center;
         }
         
         .nav-links a {
-            color: var(--text-secondary);
+            color: #94a3b8;
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 500;
             font-size: 15px;
             transition: all 0.3s;
             position: relative;
-            padding: 8px 0;
         }
         
         .nav-links a:hover {
-            color: var(--text-primary);
+            color: #667eea;
         }
         
         .nav-links a.active {
-            color: var(--primary);
+            color: #667eea;
         }
         
-        .nav-links a::before {
+        .nav-links a::after {
             content: '';
             position: absolute;
-            bottom: 0;
+            bottom: -8px;
             left: 0;
             width: 0;
             height: 2px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             transition: width 0.3s;
         }
         
-        .nav-links a:hover::before,
-        .nav-links a.active::before {
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
             width: 100%;
         }
         
         /* Main Content */
         .main-content {
-            position: relative;
-            z-index: 2;
-            min-height: calc(100vh - 80px);
-            padding: 60px 20px;
+            padding: 40px 20px;
         }
         
-        .container {
+        .app-container {
             max-width: 1400px;
             margin: 0 auto;
         }
         
-        /* Hero Section */
-        .hero {
+        .page-header {
             text-align: center;
-            margin-bottom: 60px;
-            animation: fadeInUp 0.8s ease-out;
+            margin-bottom: 40px;
+            color: white;
         }
         
-        @keyframes fadeInUp {
+        .page-header h1 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .page-header p {
+            font-size: 18px;
+            color: #94a3b8;
+            font-weight: 300;
+        }
+        
+        .main-card {
+            background: #1a1a2e;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+        
+        @keyframes slideUp {
             from {
                 opacity: 0;
                 transform: translateY(30px);
@@ -216,438 +142,284 @@
             }
         }
         
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            border-radius: 50px;
-            padding: 8px 20px;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 24px;
-            animation: pulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
-            }
-            50% {
-                box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
-            }
-        }
-        
-        .hero h1 {
-            font-size: clamp(32px, 5vw, 56px);
-            font-weight: 900;
-            line-height: 1.1;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .hero p {
-            font-size: clamp(16px, 2vw, 20px);
-            color: var(--text-secondary);
-            max-width: 700px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-        
-        /* Main Card */
-        .main-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(99, 102, 241, 0.05);
-            animation: slideUp 0.8s ease-out 0.2s both;
-        }
-        
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
         .card-header {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-            border-bottom: 1px solid var(--card-border);
-            padding: 40px;
+            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+            padding: 30px 40px;
+            color: white;
         }
         
         .card-header h2 {
-            font-size: 28px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            color: var(--text-primary);
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
         }
         
         .card-header p {
-            color: var(--text-secondary);
-            font-size: 16px;
+            opacity: 0.8;
+            font-size: 14px;
         }
         
         .card-body {
             padding: 40px;
+            background: #1a1a2e;
         }
         
-        /* Progress Steps */
-        .steps {
+        .step-indicator {
             display: flex;
             justify-content: center;
-            align-items: center;
-            margin-bottom: 50px;
-            position: relative;
+            margin-bottom: 40px;
         }
         
         .step {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 12px;
-            position: relative;
-            z-index: 2;
+            color: #64748b;
         }
         
-        .step-circle {
-            width: 60px;
-            height: 60px;
+        .step-number {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background: var(--card-bg);
-            border: 2px solid var(--card-border);
+            background: #2a2a3e;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
             font-weight: 700;
-            color: var(--text-muted);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
+            margin-right: 10px;
+            transition: all 0.3s;
+            border: 2px solid #3a3a4e;
         }
         
-        .step.active .step-circle {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            border-color: transparent;
+        .step.active .step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.5);
-            transform: scale(1.1);
-        }
-        
-        .step.completed .step-circle {
-            background: var(--success);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
             border-color: transparent;
+        }
+        
+        .step.completed .step-number {
+            background: #10b981;
             color: white;
+            border-color: transparent;
         }
         
-        .step-circle::before {
-            content: '';
-            position: absolute;
-            inset: -4px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            opacity: 0;
-            animation: ripple 2s ease-out infinite;
-        }
-        
-        .step.active .step-circle::before {
-            opacity: 0.3;
-        }
-        
-        @keyframes ripple {
-            0% {
-                transform: scale(1);
-                opacity: 0.3;
-            }
-            100% {
-                transform: scale(1.5);
-                opacity: 0;
-            }
-        }
-        
-        .step-label {
+        .step-text {
+            font-weight: 500;
             font-size: 14px;
-            font-weight: 600;
-            color: var(--text-muted);
-            transition: color 0.3s;
         }
         
-        .step.active .step-label {
-            color: var(--primary);
+        .step.active .step-text {
+            color: #e0e0e0;
         }
         
-        .step.completed .step-label {
-            color: var(--success);
+        .step-line {
+            width: 80px;
+            height: 3px;
+            background: #2a2a3e;
+            margin: 0 20px;
         }
         
-        .step-connector {
-            width: 100px;
-            height: 2px;
-            background: var(--card-border);
-            position: relative;
-            overflow: hidden;
+        .step-line.completed {
+            background: #10b981;
         }
         
-        .step-connector::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            transition: width 0.6s ease;
-        }
-        
-        .step-connector.completed::before {
-            width: 100%;
-        }
-        
-        /* Info Box */
-        .info-box {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
-            border: 1px solid rgba(99, 102, 241, 0.2);
+        .instructions-box {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid #334155;
             border-radius: 16px;
             padding: 24px;
-            margin-bottom: 32px;
+            margin-bottom: 30px;
         }
         
-        .info-box-header {
+        .instructions-box h3 {
+            color: #667eea;
+            font-size: 18px;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        
-        .info-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
-        
-        .info-box h3 {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--primary);
-        }
-        
-        .info-box ul {
-            list-style: none;
-            padding: 0;
-            display: grid;
             gap: 10px;
         }
         
-        .info-box li {
-            display: flex;
-            align-items: start;
-            gap: 12px;
-            color: var(--text-secondary);
+        .instructions-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .instructions-box li {
+            padding: 8px 0;
+            padding-left: 28px;
+            position: relative;
+            color: #94a3b8;
             font-size: 14px;
-            line-height: 1.6;
         }
         
-        .info-box li::before {
-            content: '✓';
-            color: var(--primary);
-            font-weight: 700;
-            margin-top: 2px;
+        .instructions-box li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
         }
         
-        /* Form Styles */
         .form-grid {
-            display: grid;
-            gap: 24px;
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        label {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-        
-        input[type="file"] {
-            width: 100%;
-            padding: 20px;
-            border: 2px dashed var(--card-border);
-            border-radius: 12px;
-            background: rgba(99, 102, 241, 0.03);
-            color: var(--text-secondary);
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        input[type="file"]:hover {
-            border-color: var(--primary);
-            background: rgba(99, 102, 241, 0.08);
-        }
-        
-        input[type="number"],
-        select {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            background: var(--dark-bg);
-            color: var(--text-primary);
-            font-size: 15px;
-            transition: all 0.3s;
-        }
-        
-        input[type="number"]:focus,
-        select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-        
-        .two-col {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 24px;
         }
         
-        /* Buttons */
+        .form-group {
+            margin-bottom: 0;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        input[type="file"] {
+            width: 100%;
+            padding: 16px;
+            border: 2px dashed #3a3a4e;
+            border-radius: 12px;
+            background: #0f0f1a;
+            font-size: 14px;
+            transition: all 0.3s;
+            cursor: pointer;
+            color: #94a3b8;
+        }
+        
+        input[type="file"]:hover {
+            border-color: #667eea;
+            background: #1a1a2e;
+        }
+        
+        input[type="number"], select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #3a3a4e;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #0f0f1a;
+            color: #e0e0e0;
+        }
+        
+        input[type="number"]:focus, select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+            outline: none;
+        }
+        
+        select option {
+            background: #1a1a2e;
+            color: #e0e0e0;
+        }
+        
         .btn {
-            padding: 16px 32px;
+            padding: 16px 40px;
             border: none;
             border-radius: 12px;
-            font-size: 15px;
-            font-weight: 700;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 10px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-        
-        .btn:hover::before {
-            width: 300px;
-            height: 300px;
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
         
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.6);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
         }
         
         .btn-primary:disabled {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
         
-        .btn-secondary {
-            background: var(--card-bg);
-            color: var(--text-primary);
-            border: 1px solid var(--card-border);
-        }
-        
-        .btn-secondary:hover {
-            background: var(--card-border);
-        }
-        
         .btn-success {
-            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
-            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
         }
         
         .btn-success:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.6);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
         }
         
-        .action-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 16px;
-            margin-top: 32px;
+        .btn-secondary {
+            background: #2a2a3e;
+            color: #94a3b8;
+            border: 1px solid #3a3a4e;
         }
         
-        /* Frames Grid */
-        .frames-section {
-            background: var(--dark-bg);
-            border: 1px solid var(--card-border);
+        .btn-secondary:hover {
+            background: #3a3a4e;
+            color: #e0e0e0;
+        }
+        
+        .frames-container {
+            background: #0f0f1a;
             border-radius: 16px;
-            padding: 24px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #2a2a3e;
         }
         
         .frames-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
         
         .frames-header h3 {
             font-size: 18px;
-            font-weight: 700;
+            color: #e0e0e0;
         }
         
         .selected-badge {
-            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
             padding: 8px 16px;
             border-radius: 20px;
-            font-size: 13px;
-            font-weight: 700;
+            font-size: 14px;
+            font-weight: 600;
             animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
         }
         
         .frames-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 16px;
-            max-height: 500px;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            max-height: 450px;
             overflow-y: auto;
-            padding: 4px;
+            padding-right: 10px;
         }
         
         .frames-grid::-webkit-scrollbar {
@@ -655,116 +427,88 @@
         }
         
         .frames-grid::-webkit-scrollbar-track {
-            background: var(--card-bg);
+            background: #1a1a2e;
             border-radius: 4px;
         }
         
         .frames-grid::-webkit-scrollbar-thumb {
-            background: var(--card-border);
+            background: #3a3a4e;
             border-radius: 4px;
         }
         
-        .frames-grid::-webkit-scrollbar-thumb:hover {
-            background: var(--primary);
-        }
-        
         .frame-card {
-            background: var(--card-bg);
-            border: 2px solid transparent;
+            background: #1a1a2e;
             border-radius: 12px;
             overflow: hidden;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-        
-        .frame-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
-            opacity: 0;
-            transition: opacity 0.3s;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
         
         .frame-card:hover {
-            transform: translateY(-4px) scale(1.02);
-            border-color: var(--primary);
-            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.3);
-        }
-        
-        .frame-card:hover::before {
-            opacity: 1;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            border-color: #667eea;
         }
         
         .frame-card.selected {
-            border-color: var(--danger);
-            box-shadow: 0 8px 30px rgba(239, 68, 68, 0.4);
-        }
-        
-        .frame-card.selected::before {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
-            opacity: 1;
+            border-color: #ef4444;
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
         }
         
         .frame-card img {
             width: 100%;
             display: block;
-            position: relative;
-            z-index: 1;
         }
         
         .frame-label {
             padding: 10px;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            text-align: center;
+            background: #0f0f1a;
+            color: #94a3b8;
             font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            position: relative;
-            z-index: 1;
+            font-weight: 500;
+            text-align: center;
         }
         
-        /* Processing State */
-        .processing {
+        .processing-container {
             text-align: center;
             padding: 60px 20px;
         }
         
-        .processing-spinner {
+        .processing-animation {
             width: 120px;
             height: 120px;
-            margin: 0 auto 32px;
+            margin: 0 auto 30px;
             position: relative;
         }
         
-        .spinner-ring {
+        .processing-circle {
             position: absolute;
             width: 100%;
             height: 100%;
-            border: 3px solid transparent;
-            border-top-color: var(--primary);
+            border: 4px solid #2a2a3e;
+            border-top-color: #667eea;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
         
-        .spinner-ring:nth-child(2) {
+        .processing-circle:nth-child(2) {
             width: 80%;
             height: 80%;
             top: 10%;
             left: 10%;
-            border-top-color: var(--accent);
+            border-top-color: #764ba2;
             animation-duration: 1.5s;
             animation-direction: reverse;
         }
         
-        .spinner-ring:nth-child(3) {
+        .processing-circle:nth-child(3) {
             width: 60%;
             height: 60%;
             top: 20%;
             left: 20%;
-            border-top-color: var(--success);
+            border-top-color: #10b981;
             animation-duration: 2s;
         }
         
@@ -772,129 +516,110 @@
             to { transform: rotate(360deg); }
         }
         
-        .processing h3 {
+        .processing-text h3 {
             font-size: 24px;
-            font-weight: 800;
-            margin-bottom: 12px;
+            color: #e0e0e0;
+            margin-bottom: 10px;
         }
         
-        .processing p {
-            color: var(--text-secondary);
+        .processing-text p {
+            color: #94a3b8;
             font-size: 16px;
         }
         
         .status-badge {
             display: inline-block;
-            margin-top: 20px;
-            padding: 12px 24px;
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            border-radius: 50px;
-            color: var(--primary);
+            padding: 10px 24px;
+            border-radius: 30px;
             font-weight: 600;
+            margin-top: 20px;
             font-size: 14px;
         }
         
-        /* Results */
-        .results-hero {
+        .status-processing {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+        
+        .results-header {
             text-align: center;
-            margin-bottom: 48px;
+            margin-bottom: 40px;
         }
         
         .success-icon {
             width: 80px;
             height: 80px;
-            background: linear-gradient(135deg, var(--success), #059669);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 24px;
+            margin: 0 auto 20px;
             font-size: 40px;
-            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.5);
-            animation: successPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            color: white;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
         }
         
-        @keyframes successPop {
-            0% {
-                transform: scale(0);
-            }
-            50% {
-                transform: scale(1.1);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-        
-        .results-hero h2 {
+        .results-header h2 {
             font-size: 32px;
-            font-weight: 900;
-            margin-bottom: 12px;
+            color: #e0e0e0;
+            margin-bottom: 10px;
         }
         
-        .results-hero p {
-            color: var(--text-secondary);
+        .results-header p {
+            color: #94a3b8;
             font-size: 16px;
         }
         
-        .video-section {
-            margin-bottom: 48px;
-        }
-        
-        .video-section h3 {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 24px;
+        .video-preview {
             text-align: center;
+            margin-bottom: 40px;
         }
         
-        .video-wrapper {
-            position: relative;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        .video-preview h3 {
+            font-size: 20px;
+            color: #e0e0e0;
+            margin-bottom: 20px;
         }
         
-        .video-wrapper video {
-            width: 100%;
-            display: block;
-        }
-        
-        .downloads {
+        .download-section {
             display: flex;
-            gap: 16px;
+            gap: 20px;
             justify-content: center;
-            margin-bottom: 48px;
-            flex-wrap: wrap;
+            margin-bottom: 40px;
         }
         
         .download-card {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            border-radius: 12px;
-            padding: 20px 32px;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 2px solid #334155;
+            border-radius: 16px;
+            padding: 24px 32px;
             text-decoration: none;
-            color: var(--primary);
-            font-weight: 700;
+            color: #667eea;
+            font-weight: 600;
+            transition: all 0.3s;
             display: flex;
             align-items: center;
             gap: 12px;
-            transition: all 0.3s;
         }
         
         .download-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.3);
-            border-color: var(--primary);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+        
+        .download-icon {
+            font-size: 24px;
         }
         
         .metrics-section h3 {
-            font-size: 24px;
-            font-weight: 800;
-            margin-bottom: 32px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--card-border);
+            font-size: 20px;
+            color: #e0e0e0;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #2a2a3e;
         }
         
         .metrics-grid {
@@ -904,56 +629,52 @@
         }
         
         .metric-card {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
-            border: 1px solid var(--card-border);
-            border-left: 4px solid var(--primary);
-            border-radius: 12px;
+            background: #0f0f1a;
+            border-radius: 16px;
             padding: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border-left: 5px solid #667eea;
             transition: all 0.3s;
+            border: 1px solid #2a2a3e;
         }
         
         .metric-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
         }
         
         .metric-card h4 {
-            font-size: 12px;
-            font-weight: 700;
+            font-size: 14px;
+            color: #64748b;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
+            letter-spacing: 0.5px;
             margin-bottom: 12px;
         }
         
         .metric-value {
             font-size: 36px;
-            font-weight: 900;
-            color: var(--text-primary);
+            font-weight: 800;
+            color: #e0e0e0;
             margin-bottom: 4px;
         }
         
         .metric-unit {
             font-size: 14px;
-            color: var(--text-muted);
+            color: #64748b;
         }
         
         .warning-box {
-            background: rgba(245, 158, 11, 0.05);
-            border: 1px solid rgba(245, 158, 11, 0.2);
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
             border-radius: 12px;
-            padding: 24px;
-            margin-top: 32px;
+            padding: 20px;
+            margin-top: 30px;
         }
         
         .warning-box h4 {
-            color: var(--warning);
+            color: #fbbf24;
+            margin-bottom: 10px;
             font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
         
         .warning-box ul {
@@ -962,7 +683,7 @@
         }
         
         .warning-box li {
-            color: rgba(245, 158, 11, 0.9);
+            color: #fcd34d;
             padding: 6px 0;
             font-size: 14px;
         }
@@ -970,74 +691,41 @@
         .error-message {
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 12px;
+            color: #fca5a5;
             padding: 16px;
-            color: var(--danger);
-            font-weight: 600;
-            margin-bottom: 24px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 40px;
         }
         
         /* Footer */
         .site-footer {
-            background: rgba(10, 10, 15, 0.8);
-            border-top: 1px solid var(--card-border);
-            padding: 40px 20px;
-            margin-top: 80px;
-            position: relative;
-            z-index: 2;
+            background: #0a0a14;
+            border-top: 1px solid rgba(102, 126, 234, 0.1);
+            padding: 30px 40px;
+            margin-top: 60px;
         }
         
         .footer-content {
             max-width: 1400px;
             margin: 0 auto;
             text-align: center;
-            color: var(--text-muted);
+            color: #64748b;
             font-size: 14px;
-        }
-        
-        @media (max-width: 768px) {
-            .header-content {
-                padding: 0 20px;
-            }
-            
-            .nav-links {
-                gap: 24px;
-            }
-            
-            .two-col {
-                grid-template-columns: 1fr;
-            }
-            
-            .steps {
-                flex-direction: column;
-            }
-            
-            .step-connector {
-                width: 2px;
-                height: 60px;
-            }
-            
-            .metrics-grid {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- Animated Background -->
-    <div class="bg-gradient"></div>
-    
-    <!-- Floating Particles -->
-    <div class="particles" id="particles"></div>
-    
     <header class="site-header">
         <div class="header-content">
-            <div class="logo">
-                <div class="logo-icon">
-                    <img src="logo.png" alt="CricKineticsAI Logo" />
-                </div>
-                <span class="logo-text">CricKineticsAI</span>
-            </div>
+            <div class="logo">CricKineticsAI</div>
             <nav class="nav-links">
                 <a href="index.html" class="active">Home</a>
                 <a href="about.html">About Us</a>
@@ -1055,19 +743,6 @@
             © 2024 CricKineticsAI. Advanced AI-Powered Bowling Analysis.
         </div>
     </footer>
-    
-    <script>
-        // Create floating particles
-        const particlesContainer = document.getElementById('particles');
-        for (let i = 0; i < 20; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.style.left = Math.random() * 100 + '%';
-            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
-            particle.style.animationDelay = Math.random() * 5 + 's';
-            particlesContainer.appendChild(particle);
-        }
-    </script>
     
     <script type="text/babel">
         const API_URL = 'https://ai-fastbowling-analysis-production.up.railway.app';
@@ -1188,15 +863,11 @@
             };
             
             return (
-                <div className="container">
-                    <div className="hero">
-                        <div className="hero-badge">
-                            <span>⚡</span>
-                            <span>AI-Powered Analysis</span>
-                        </div>
-                        <h1>Cricket Kinematic Bowling Analysis</h1>
-                        <p>Professional-grade biomechanics analysis powered by cutting-edge AI. Upload your bowling video and get instant insights.</p>
-                    </div>
+                <div className="app-container">
+                    <header className="page-header">
+                        <h1>🏏 Cricket Kinematic Bowling Analysis</h1>
+                        <p>AI-Powered Biomechanics Analysis for Fast Bowlers</p>
+                    </header>
                     
                     <div className="main-card">
                         <div className="card-header">
@@ -1215,25 +886,25 @@
                         </div>
                         
                         <div className="card-body">
-                            <div className="steps">
+                            <div className="step-indicator">
                                 <div className={`step ${step >= 1 ? 'active' : ''} ${step > 1 ? 'completed' : ''}`}>
-                                    <div className="step-circle">{step > 1 ? '✓' : '1'}</div>
-                                    <span className="step-label">Upload</span>
+                                    <div className="step-number">{step > 1 ? '✓' : '1'}</div>
+                                    <span className="step-text">Upload</span>
                                 </div>
-                                <div className={`step-connector ${step > 1 ? 'completed' : ''}`}></div>
+                                <div className={`step-line ${step > 1 ? 'completed' : ''}`}></div>
                                 <div className={`step ${step >= 2 ? 'active' : ''} ${step > 2 ? 'completed' : ''}`}>
-                                    <div className="step-circle">{step > 2 ? '✓' : '2'}</div>
-                                    <span className="step-label">Select Frame</span>
+                                    <div className="step-number">{step > 2 ? '✓' : '2'}</div>
+                                    <span className="step-text">Select Frame</span>
                                 </div>
-                                <div className={`step-connector ${step > 2 ? 'completed' : ''}`}></div>
+                                <div className={`step-line ${step > 2 ? 'completed' : ''}`}></div>
                                 <div className={`step ${step >= 3 ? 'active' : ''} ${step > 3 ? 'completed' : ''}`}>
-                                    <div className="step-circle">{step > 3 ? '✓' : '3'}</div>
-                                    <span className="step-label">Process</span>
+                                    <div className="step-number">{step > 3 ? '✓' : '3'}</div>
+                                    <span className="step-text">Process</span>
                                 </div>
-                                <div className={`step-connector ${step > 3 ? 'completed' : ''}`}></div>
+                                <div className={`step-line ${step > 3 ? 'completed' : ''}`}></div>
                                 <div className={`step ${step >= 4 ? 'active' : ''}`}>
-                                    <div className="step-circle">4</div>
-                                    <span className="step-label">Results</span>
+                                    <div className="step-number">4</div>
+                                    <span className="step-text">Results</span>
                                 </div>
                             </div>
                             
@@ -1241,11 +912,8 @@
                             
                             {step === 1 && (
                                 <div>
-                                    <div className="info-box">
-                                        <div className="info-box-header">
-                                            <div className="info-icon">📋</div>
-                                            <h3>Video Requirements</h3>
-                                        </div>
+                                    <div className="instructions-box">
+                                        <h3>📋 Video Requirements</h3>
                                         <ul>
                                             <li>Capture from mid run-up through ball release</li>
                                             <li>Ensure the ball doesn't hit the bat</li>
@@ -1256,45 +924,43 @@
                                     </div>
                                     
                                     <form onSubmit={handleUpload}>
+                                        <div className="form-group full-width">
+                                            <label>Video File</label>
+                                            <input 
+                                                type="file" 
+                                                accept=".mp4,.avi,.mov"
+                                                onChange={(e) => setVideo(e.target.files[0])}
+                                                required
+                                            />
+                                        </div>
+                                        
                                         <div className="form-grid">
                                             <div className="form-group">
-                                                <label>Video File</label>
+                                                <label>Bowler Height (meters)</label>
                                                 <input 
-                                                    type="file" 
-                                                    accept=".mp4,.avi,.mov"
-                                                    onChange={(e) => setVideo(e.target.files[0])}
+                                                    type="number" 
+                                                    step="0.01"
+                                                    min="1.0"
+                                                    max="2.5"
+                                                    placeholder="e.g., 1.85"
+                                                    value={height}
+                                                    onChange={(e) => setHeight(e.target.value)}
                                                     required
                                                 />
                                             </div>
                                             
-                                            <div className="two-col">
-                                                <div className="form-group">
-                                                    <label>Bowler Height (meters)</label>
-                                                    <input 
-                                                        type="number" 
-                                                        step="0.01"
-                                                        min="1.0"
-                                                        max="2.5"
-                                                        placeholder="e.g., 1.85"
-                                                        value={height}
-                                                        onChange={(e) => setHeight(e.target.value)}
-                                                        required
-                                                    />
-                                                </div>
-                                                
-                                                <div className="form-group">
-                                                    <label>Bowling Hand</label>
-                                                    <select value={handed} onChange={(e) => setHanded(e.target.value)}>
-                                                        <option value="right">Right Handed</option>
-                                                        <option value="left">Left Handed</option>
-                                                    </select>
-                                                </div>
+                                            <div className="form-group">
+                                                <label>Bowling Hand</label>
+                                                <select value={handed} onChange={(e) => setHanded(e.target.value)}>
+                                                    <option value="right">Right Handed</option>
+                                                    <option value="left">Left Handed</option>
+                                                </select>
                                             </div>
                                         </div>
                                         
                                         <div className="action-buttons">
                                             <button type="submit" className="btn btn-primary" disabled={loading}>
-                                                <span>{loading ? '⏳ Uploading...' : '🚀 Upload & Extract Frames'}</span>
+                                                {loading ? '⏳ Uploading...' : '🚀 Upload & Extract Frames'}
                                             </button>
                                         </div>
                                     </form>
@@ -1303,7 +969,7 @@
                             
                             {step === 2 && (
                                 <div>
-                                    <div className="frames-section">
+                                    <div className="frames-container">
                                         <div className="frames-header">
                                             <h3>Click on the release frame</h3>
                                             {selectedFrame !== null && (
@@ -1335,30 +1001,32 @@
                                     
                                     <div className="action-buttons">
                                         <button className="btn btn-secondary" onClick={resetApp}>
-                                            <span>← Back</span>
+                                            ← Back
                                         </button>
                                         <button 
                                             className="btn btn-success"
                                             onClick={handleStartProcessing}
                                             disabled={selectedFrame === null || loading}
                                         >
-                                            <span>{loading ? '⏳ Starting...' : '🎯 Analyze This Frame'}</span>
+                                            {loading ? '⏳ Starting...' : '🎯 Analyze This Frame'}
                                         </button>
                                     </div>
                                 </div>
                             )}
                             
                             {step === 3 && (
-                                <div className="processing">
-                                    <div className="processing-spinner">
-                                        <div className="spinner-ring"></div>
-                                        <div className="spinner-ring"></div>
-                                        <div className="spinner-ring"></div>
+                                <div className="processing-container">
+                                    <div className="processing-animation">
+                                        <div className="processing-circle"></div>
+                                        <div className="processing-circle"></div>
+                                        <div className="processing-circle"></div>
                                     </div>
-                                    <h3>Analyzing Your Bowling Action</h3>
-                                    <p>This typically takes 2-3 minutes. Please don't close this page.</p>
+                                    <div className="processing-text">
+                                        <h3>Analyzing Your Bowling Action</h3>
+                                        <p>This typically takes 2-3 minutes. Please don't close this page.</p>
+                                    </div>
                                     {status && (
-                                        <div className="status-badge">
+                                        <div className="status-badge status-processing">
                                             {status.progress}
                                         </div>
                                     )}
@@ -1367,32 +1035,37 @@
                             
                             {step === 4 && metrics && (
                                 <div>
-                                    <div className="results-hero">
+                                    <div className="results-header">
                                         <div className="success-icon">✓</div>
                                         <h2>Analysis Complete!</h2>
                                         <p>Your bowling biomechanics have been analyzed</p>
                                     </div>
                                     
-                                    <div className="video-section">
+                                    <div className="video-preview">
                                         <h3>Annotated Video</h3>
-                                        <div className="video-wrapper">
-                                            <video 
-                                                controls 
-                                                src={`${API_URL}/v1/video/${jobId}/download/video`}
-                                            >
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        </div>
+                                        <video 
+                                            controls 
+                                            src={`${API_URL}/v1/video/${jobId}/download/video`}
+                                            style={{
+                                                width: '100%',
+                                                maxWidth: '800px',
+                                                borderRadius: '16px',
+                                                backgroundColor: '#000',
+                                                boxShadow: '0 8px 30px rgba(0,0,0,0.5)'
+                                            }}
+                                        >
+                                            Your browser does not support the video tag.
+                                        </video>
                                     </div>
                                     
-                                    <div className="downloads">
+                                    <div className="download-section">
                                         <a href={`${API_URL}/v1/video/${jobId}/download/video`} className="download-card" download>
-                                            <span>🎬</span>
-                                            <span>Download Video</span>
+                                            <span className="download-icon">📹</span>
+                                            <span>Download Annotated Video</span>
                                         </a>
                                         <a href={`${API_URL}/v1/video/${jobId}/download/metrics`} className="download-card" download="metrics.json">
-                                            <span>📊</span>
-                                            <span>Download Report</span>
+                                            <span className="download-icon">📊</span>
+                                            <span>Download JSON Report</span>
                                         </a>
                                     </div>
                                     
@@ -1466,7 +1139,7 @@
                                             {metrics.BFC_landing_type && (
                                                 <div className="metric-card">
                                                     <h4>Landing Type</h4>
-                                                    <div className="metric-value" style={{fontSize: '20px'}}>{metrics.BFC_landing_type.replace(/_/g, ' ')}</div>
+                                                    <div className="metric-value" style={{fontSize: '24px'}}>{metrics.BFC_landing_type.replace(/_/g, ' ')}</div>
                                                     <div className="metric-unit">back foot contact</div>
                                                 </div>
                                             )}
@@ -1474,7 +1147,7 @@
                                             {metrics.arm_position_at_ffc && (
                                                 <div className="metric-card">
                                                     <h4>Arm Position at FFC</h4>
-                                                    <div className="metric-value" style={{fontSize: '20px'}}>{metrics.arm_position_at_ffc.replace(/_/g, ' ')}</div>
+                                                    <div className="metric-value" style={{fontSize: '24px'}}>{metrics.arm_position_at_ffc.replace(/_/g, ' ')}</div>
                                                     <div className="metric-unit">bowling arm position</div>
                                                 </div>
                                             )}
@@ -1494,7 +1167,7 @@
                                     
                                     <div className="action-buttons">
                                         <button className="btn btn-primary" onClick={resetApp}>
-                                            <span>🔄 Analyze Another Video</span>
+                                            🔄 Analyze Another Video
                                         </button>
                                     </div>
                                 </div>
